@@ -22,32 +22,36 @@ module Hanami
       # @api private
       # @since 2.0.0
       def add(route, to, constraints)
-        segments = segments_from(route)
         node = @root
+        param_keys = []
 
-        segments.each do |segment|
-          node = node.put(segment)
+        segments_from(route).each do |segment|
+          node = node.put(segment, param_keys)
         end
 
-        node.leaf!(route, to, constraints)
+        node.leaf!(param_keys, to, constraints)
       end
 
       # @api private
       # @since 2.0.0
       def find(path)
-        segments = segments_from(path)
         node = @root
+        param_values = []
 
-        return unless segments.all? { |segment| node = node.get(segment) }
+        path.slice(1..).split(SEGMENT_SEPARATOR) do |segment|
+          node = node.get(segment, param_values)
 
-        node.match(path)&.then { |found| [found.to, found.params] }
+          break if node.nil?
+        end
+
+        node&.match(param_values)&.then { |found| [found.to, found.params] }
       end
 
       private
 
       # @api private
       # @since 2.0.0
-      SEGMENT_SEPARATOR = /\//
+      SEGMENT_SEPARATOR = "/"
       private_constant :SEGMENT_SEPARATOR
 
       # @api private

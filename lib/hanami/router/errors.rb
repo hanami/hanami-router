@@ -38,6 +38,21 @@ module Hanami
       end
     end
 
+    # Error raised when a route definition is invalid
+    #
+    # @see Hanami::Router#path
+    # @see Hanami::Router#url
+    #
+    # @since 2.2.1
+    # @api public
+    class InvalidRouteDefinitionError < Error
+      # @since 2.2.1
+      # @api private
+      def initialize(http_method, path, message)
+        super("Invalid route definition '#{http_method.downcase} #{path}': #{message}")
+      end
+    end
+
     # Error raised when variables given for route cannot be expanded into a full path.
     #
     # @see Hanami::Router#path

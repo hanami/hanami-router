@@ -762,13 +762,21 @@ module Hanami
     # @api private
     PARAMS = "router.params"
 
-    # @since 2.0.0
+    # @since 2.2.1
     # @api private
-    ROUTE_VARIABLE_MATCHER = /:/
+    ROUTE_OPTIONAL_INDICATOR = "("
 
-    # @since 2.0.0
+    # @since 2.2.1
     # @api private
-    ROUTE_GLOBBED_MATCHER = /\*/
+    ROUTE_VARIABLE_INDICATOR = ":"
+
+    # @since 2.2.1
+    # @api private
+    ROUTE_GLOBBED_INDICATOR = "*"
+
+    # @since 2.2.1
+    # @api private
+    ROUTE_INNER_PARENTHESES_MATCHER = /\(([^()]*)\)/
 
     # Default response when the route method was not allowed
     #
@@ -811,6 +819,8 @@ module Hanami
 
       if globbed?(path)
         add_globbed_route(http_method, path, endpoint, constraints)
+      elsif optional?(path)
+        add_optional_routes(http_method, path, to, constraints, &blk)
       elsif variable?(path)
         add_variable_route(http_method, path, endpoint, constraints)
       else
@@ -866,16 +876,54 @@ module Hanami
       @url_helpers.add(as, Segment.fabricate(path, **constraints))
     end
 
+    # @since 2.2.1
+    # @api private
+    def add_optional_routes(http_method, path, to, constraints, &blk)
+      as = nil # avoid creating named routes for all optional permutations
+      optional_paths = [path]
+
+      optional_paths.each do |optional_path|
+        match_data = ROUTE_INNER_PARENTHESES_MATCHER.match(optional_path)
+
+        if match_data.nil?
+          raise InvalidRouteDefinitionError.new(http_method, path, "unmatched parenthesis in route")
+        end
+
+        optional_routes_from(match_data).each do |new_path|
+          if optional?(new_path)
+            optional_paths << new_path
+          else
+            add_route(http_method, new_path, to, as, constraints, &blk)
+          end
+        end
+      end
+    end
+
+    # @since 2.2.1
+    # @api private
+    def optional_routes_from(match_data)
+      [
+        -"#{match_data.pre_match}#{match_data[1]}#{match_data.post_match}",
+        -"#{match_data.pre_match}#{match_data.post_match}"
+      ]
+    end
+
     # @since 2.0.0
     # @api private
     def variable?(path)
-      ROUTE_VARIABLE_MATCHER.match?(path)
+      path.include?(ROUTE_VARIABLE_INDICATOR)
+    end
+
+    # @since 2.2.1
+    # @api private
+    def optional?(path)
+      path.include?(ROUTE_OPTIONAL_INDICATOR)
     end
 
     # @since 2.0.0
     # @api private
     def globbed?(path)
-      ROUTE_GLOBBED_MATCHER.match?(path)
+      path.include?(ROUTE_GLOBBED_INDICATOR)
     end
 
     # @since 2.0.0

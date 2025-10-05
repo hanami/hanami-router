@@ -148,7 +148,7 @@ RSpec.describe Hanami::Router do
         end
       end
 
-      xit "generates relative and absolute URLs" do
+      it "generates relative and absolute URLs" do
         runner.run!([
           [:a, "/foo/bar", {var1: "foo", var2: "bar"}],
           [:a, "/foo", {var1: "foo"}]
@@ -177,7 +177,7 @@ RSpec.describe Hanami::Router do
         end
       end
 
-      xit "generates relative and absolute URLs" do
+      it "generates relative and absolute URLs" do
         runner.run!([
           [:a, "/var/fooz/baz", {var1: "var", var2: "fooz", var3: "baz"}],
           [:a, "/var/fooz", {var1: "var", var2: "fooz"}],

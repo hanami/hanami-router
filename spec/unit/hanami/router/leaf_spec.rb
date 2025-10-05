@@ -3,60 +3,81 @@
 require "hanami/router/leaf"
 
 RSpec.describe Hanami::Router::Leaf do
-  let(:subject)     { described_class.new(route, to, constraints) }
-  let(:route)       { "/test/route" }
-  let(:to)          { "test proc" }
-  let(:constraints) { {} }
+  let(:subject) { described_class.new(param_keys, to, constraints) }
+  let(:to) { "test proc" }
 
   describe "#initialize" do
-    it "returns a #{described_class} instance" do
-      expect(subject).to be_kind_of(described_class)
-    end
-  end
+    let(:param_keys)  { [] }
+    let(:constraints) { {} }
 
-  describe "#to" do
-    it "returns the endpoint passed as 'to' when initialized" do
-      expect(subject.to).to eq(to)
+    it "returns a #{described_class} instance" do
+      result = subject
+
+      expect(result).to be_kind_of(described_class)
+    end
+
+    it "sets :to attribute to target action" do
+      result = subject.to
+
+      expect(result).to eq("test proc")
+    end
+
+    it "sets :params attribute to nil" do
+      result = subject.params
+
+      expect(result).to be_nil
     end
   end
 
   describe "#match" do
-    context "when path matches route" do
-      let(:matching_path) { route }
+    let(:param_keys) { ["variable"] }
+    let(:param_values) { ["value"] }
+
+    context "with no constraints" do
+      let(:constraints) { {} }
 
       it "returns true" do
-        expect(subject.match(matching_path)).to be_truthy
+        result = subject.match(param_values)
+
+        expect(result).to be_truthy
+      end
+
+      it "sets captured params" do
+        leaf = subject
+        leaf.match(param_values)
+
+        result = leaf.params
+
+        expect(result).to eq({"variable" => "value"})
       end
     end
 
-    context "when path doesn't match route" do
-      let(:non_matching_path) { "/bad/path" }
+    context "with valid constraint" do
+      let(:constraints) { {variable: /\w+/} }
 
       it "returns true" do
-        expect(subject.match(non_matching_path)).to be_falsey
+        result = subject.match(param_values)
+
+        expect(result).to be_truthy
+      end
+
+      it "sets captured params" do
+        leaf = subject
+        leaf.match(param_values)
+
+        result = leaf.params
+
+        expect(result).to eq({"variable" => "value"})
       end
     end
-  end
 
-  describe "#params" do
-    context "without previously calling #match(path)" do
-      it "returns nil" do
-        params = subject.params
+    context "with invalid constraint" do
+      let(:constraints) { {variable: /\d+/} }
 
-        expect(params).to be_nil
-      end
-    end
+      it "returns false" do
+        result = subject.match(param_values)
 
-    context "with variable path" do
-      let(:route)           { "test/:route" }
-      let(:matching_path)   { "test/path" }
-      let(:matching_params) { {"route" => "path"} }
-
-      it "returns captured params" do
-        subject.match(matching_path)
-        params = subject.params
-
-        expect(params).to eq(matching_params)
+        expect(result).to be_falsey
       end
     end
   end

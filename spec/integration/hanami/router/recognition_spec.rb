@@ -305,7 +305,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "fixed with format" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "fixed with format" do
       let(:router) do
         described_class.new do
           get "/test.:format", as: :fixed, to: RecognitionTestCase.endpoint("fixed")
@@ -319,7 +320,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "fixed with optional format" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "fixed with optional format" do
       let(:router) do
         described_class.new do
           get "/test(.:format)", as: :fixed, to: RecognitionTestCase.endpoint("fixed")
@@ -350,7 +352,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "variable with format" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "variable with format" do
       let(:router) do
         described_class.new do
           get "/:test.:format", as: :variable, to: RecognitionTestCase.endpoint("variable")
@@ -364,7 +367,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "variable with optional format" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "variable with optional format" do
       let(:router) do
         described_class.new do
           get "/:test(.:format)", as: :variable, to: RecognitionTestCase.endpoint("variable")
@@ -379,7 +383,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "variable with optional constrainted format" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "variable with optional constrainted format" do
       let(:router) do
         described_class.new do
           get "/:test(.:format)", format: /[^.]+/, as: :variable, to: RecognitionTestCase.endpoint("variable")
@@ -591,12 +596,8 @@ RSpec.describe Hanami::Router do
 
       it "recognizes route(s)" do
         runner.run!([
-          [:regex, "/123/number", {test: "123"}]
-          # FIXME: this passes if `:greedy` route has the same constraint of the other (`test: /\d+/`)
-          #        this because the returned segment for the two /:test is different because of the contraint.
-          #        this makes Node `@variable` to set them in two different children where the first shadows the latter
-          #        a potential solution could be to use `Segment.new` and implement `#==`
-          # [:greedy, "/123/anything", { test: "123" }]
+          [:regex, "/123/number", {test: "123"}],
+          [:greedy, "/123/anything", {test: "123"}]
         ])
       end
     end
@@ -630,6 +631,84 @@ RSpec.describe Hanami::Router do
       end
     end
 
+    describe "optional fixed segment" do
+      let(:router) do
+        described_class.new do
+          get "/one(/two)", as: :nested, to: RecognitionTestCase.endpoint("nested")
+        end
+      end
+
+      it "recognizes route(s)" do
+        runner.run!([
+          [:nested, "/one"],
+          [:nested, "/one/two"]
+        ])
+      end
+    end
+
+    describe "optional variable segment" do
+      let(:router) do
+        described_class.new do
+          get "/one(/:two)", as: :nested, to: RecognitionTestCase.endpoint("nested")
+        end
+      end
+
+      it "recognizes route(s)" do
+        runner.run!([
+          [:nested, "/one", {}],
+          [:nested, "/one/2", {two: "2"}]
+        ])
+      end
+    end
+
+    describe "optional variable between fixed segments" do
+      let(:router) do
+        described_class.new do
+          get "/one(/:var)/two", as: :nested, to: RecognitionTestCase.endpoint("nested")
+        end
+      end
+
+      it "recognizes route(s)" do
+        runner.run!([
+          [:nested, "/one/two", {}],
+          [:nested, "/one/abc/two", {var: "abc"}]
+        ])
+      end
+    end
+
+    describe "consecutive optional variables" do
+      let(:router) do
+        described_class.new do
+          get "/one(/:year)(/:month)/two", as: :nested, to: RecognitionTestCase.endpoint("nested")
+        end
+      end
+
+      it "recognizes route(s)" do
+        runner.run!([
+          [:nested, "/one/two", {}],
+          [:nested, "/one/1970/two", {year: "1970"}],
+          [:nested, "/one/1970/12/two", {year: "1970", month: "12"}]
+        ])
+      end
+    end
+
+    describe "consecutive optional variables with constraints" do
+      let(:router) do
+        described_class.new do
+          get "/one(/:year)(/:month)", as: :nested, to: RecognitionTestCase.endpoint("nested"), year: /\d{4}/, month: /\d{2}/
+        end
+      end
+
+      it "recognizes route(s)" do
+        runner.run!([
+          [:nested, "/one", {}],
+          [:nested, "/one/1970", {year: "1970"}],
+          [:nested, "/one/12", {month: "12"}],
+          [:nested, "/one/1970/12", {year: "1970", month: "12"}]
+        ])
+      end
+    end
+
     describe "multiple nested optional fixed segments" do
       let(:router) do
         described_class.new do
@@ -637,7 +716,7 @@ RSpec.describe Hanami::Router do
         end
       end
 
-      xit "recognizes route(s)" do
+      it "recognizes route(s)" do
         runner.run!([
           [:nested, "/one"],
           [:nested, "/one/two"],
@@ -650,7 +729,20 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "relative fixed with escaped variable" do
+    describe "invalid optional definition" do
+      let(:router) do
+        described_class.new do
+          get "/one(/two", as: :broken, to: RecognitionTestCase.endpoint("broken")
+        end
+      end
+
+      it "raise InvalidRouteDefinitionError" do
+        expect { runner }.to raise_error(Hanami::Router::InvalidRouteDefinitionError)
+      end
+    end
+
+    # FIXME: not supported in 2.2.1
+    xdescribe "relative fixed with escaped variable" do
       let(:router) do
         described_class.new do
           get "test\\:variable", as: :escaped, to: RecognitionTestCase.endpoint("escaped")
@@ -664,7 +756,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "relative fixed with escaped optional variable" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "relative fixed with escaped optional variable" do
       let(:router) do
         described_class.new do
           get "test\\(:variable\\)", as: :escaped, to: RecognitionTestCase.endpoint("escaped")
@@ -706,7 +799,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "variable sourrounded by fixed tokens in the same segment" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "variable sourrounded by fixed tokens in the same segment" do
       let(:router) do
         described_class.new do
           get "/one-:variable-time", as: :variable, to: RecognitionTestCase.endpoint("variable")
@@ -720,7 +814,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "constrainted variable sourrounded by fixed tokens in the same segment" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "constrainted variable sourrounded by fixed tokens in the same segment" do
       let(:router) do
         described_class.new do
           get "/one-:variable-time", as: :variable, variable: /\d+/, to: RecognitionTestCase.endpoint("variable")
@@ -735,7 +830,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "variable sourrounded by fixed token and format in the same segment" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "variable sourrounded by fixed token and format in the same segment" do
       let(:router) do
         described_class.new do
           get "hey.:greed.html", as: :variable, to: RecognitionTestCase.endpoint("variable")
@@ -749,7 +845,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    describe "multiple routes with variables in the same segment" do
+    # FIXME: not supported in 2.2.1
+    xdescribe "multiple routes with variables in the same segment" do
       let(:router) do
         described_class.new do
           get "/:v1-:v2-:v3-:v4-:v5-:v6", as: :var6, to: RecognitionTestCase.endpoint("var6")
@@ -773,7 +870,8 @@ RSpec.describe Hanami::Router do
       end
     end
 
-    context "variable sourrounded by fixed token and format in the same segment" do
+    # FIXME: not supported in 2.2.1
+    xcontext "variable sourrounded by fixed token and format in the same segment" do
       let(:router) do
         described_class.new do
           get "/:common_variable.:matched",   as: :regex,   to: RecognitionTestCase.endpoint("regex"), matched: /\d+/

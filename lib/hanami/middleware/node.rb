@@ -80,7 +80,7 @@ module Hanami
       # @api private
       # @since 2.0.3
       def variable?(segment)
-        Router::ROUTE_VARIABLE_MATCHER.match?(segment)
+        segment.include?(Router::ROUTE_VARIABLE_INDICATOR)
       end
 
       # @api private
