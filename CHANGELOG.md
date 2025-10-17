@@ -2,6 +2,13 @@
 
 Rack compatible HTTP router for Ruby
 
+## v2.3.0.beta2 - 2025-10-17
+
+### Changed
+
+- [Kyle Plump] Improve runtime performance by building mustermann matchers when routes are first built. This corrects a performance regression introduced with the fixes in v2.2.0. (#279)
+- Drop support for Ruby 3.1
+
 ## v2.3.0.beta1 - 2025-10-03
 
 ### Changed
