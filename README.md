@@ -6,8 +6,6 @@ Rack compatible, lightweight, and fast HTTP Router for Ruby and [Hanami](http://
 
 [![Gem Version](https://badge.fury.io/rb/hanami-router.svg)](https://badge.fury.io/rb/hanami-router)
 [![CI](https://github.com/hanami/router/actions/workflows/ci.yml/badge.svg)](https://github.com/hanami/router/actions?query=workflow%3Aci+branch%3Amain)
-[![Test Coverage](https://codecov.io/gh/hanami/router/branch/main/graph/badge.svg)](https://codecov.io/gh/hanami/router)
-[![Depfu](https://badges.depfu.com/badges/5f6b8e8fa3b0d082539f0b0f84d55960/overview.svg)](https://depfu.com/github/hanami/router?project=Bundler)
 
 ## Contact
 
@@ -19,8 +17,6 @@ Rack compatible, lightweight, and fast HTTP Router for Ruby and [Hanami](http://
 
 
 ## Installation
-
-__Hanami::Router__ supports Ruby (MRI) 3.1.+
 
 Add this line to your application's Gemfile:
 
