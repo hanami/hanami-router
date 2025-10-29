@@ -167,7 +167,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -203,6 +204,19 @@ module Hanami
     #   router.path(:welcome) # => "/"
     #   router.url(:welcome)  # => #<URI::HTTP http://localhost/>
     #
+    # @example Named route with prefix inside scope
+    #   require "hanami/router"
+    #
+    #   router = Hanami::Router.new do
+    #     scope "backend" do
+    #       scope "admin", as: :secret do
+    #         get "/cats/new", to: ->(*) { [200, {}, ["OK"]] }, as: [:new, :cat]
+    #       end
+    #     end
+    #   end
+    #
+    #   router.path(:new_backend_secret_cat) # => "/backend/admin/cats/new
+    #
     # @example Constraints
     #   require "hanami/router"
     #
@@ -218,7 +232,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -236,7 +251,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -254,7 +270,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -272,7 +289,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -290,7 +308,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -308,7 +327,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -326,7 +346,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -344,7 +365,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param constraints [Hash] a set of constraints for path variables
     # @param blk [Proc] the anonymous proc to be used as endpoint for the route
     #
@@ -362,7 +384,8 @@ module Hanami
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
-    # @param as [Symbol] a unique name for the route
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
     # @param code [Integer] a HTTP status code to use for the redirect
     #
     # @raise [Hanami::Router::UnknownHTTPStatusCodeError] when an unknown redirect code is given
@@ -379,6 +402,7 @@ module Hanami
     # inherit the given path as path prefix and as a named routes prefix.
     #
     # @param path [String] the scope path to be used as a path prefix
+    # @param as: [String, Symbol] the name prefix to use for nested routes
     # @param blk [Proc] the routes definitions withing the scope
     #
     # @since 2.0.0
@@ -818,14 +842,13 @@ module Hanami
       end
 
       if as
-        add_named_route(path, prefixed_name(as), constraints)
+        as = prefixed_name(as)
+        add_named_route(path, as, constraints)
       end
 
       if inspect?
         @inspector.add_route(
-          Route.new(
-            http_method: http_method, path: path, to: to || endpoint, as: as, constraints: constraints, blk: blk
-          )
+          Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
         )
       end
     end
@@ -862,7 +885,7 @@ module Hanami
     # @since 2.0.0
     # @api private
     def add_named_route(path, name, constraints)
-      @url_helpers.add(normalized_name(name), Segment.fabricate(path, **constraints))
+      @url_helpers.add(name, Segment.fabricate(path, **constraints))
     end
 
     # @since 2.0.0
@@ -891,7 +914,25 @@ module Hanami
 
     # @api private
     def prefixed_name(name)
-      @name_prefix.relative_join(name, PREFIXED_NAME_SEPARATOR).to_s
+      prefix, suffix = name_parts(name)
+
+      name = @name_prefix.relative_join(suffix, PREFIXED_NAME_SEPARATOR).to_s
+      name = prefix + PREFIXED_NAME_SEPARATOR + name if prefix
+
+      normalized_name(name)
+    end
+
+    # Returns a [prefix, suffix] array for a given route name.
+    #
+    # @api private
+    def name_parts(name)
+      name = Array(name)
+
+      if name.size < 2
+        [nil, name.first.to_s]
+      else
+        [name.first.to_s, name[1..].join("_")]
+      end
     end
 
     # @api private
