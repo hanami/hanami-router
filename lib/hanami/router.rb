@@ -395,13 +395,13 @@ module Hanami
     #   end
     #
     #   router.path(:v1_users) # => "/v1/users"
-    def scope(path, &blk)
+    def scope(path, as: nil, &blk)
       path_prefix = @path_prefix
       name_prefix = @name_prefix
 
       begin
         @path_prefix = @path_prefix.join(path.to_s)
-        @name_prefix = @name_prefix.join(path.to_s)
+        @name_prefix = @name_prefix.join((as || path).to_s)
         instance_eval(&blk)
       ensure
         @path_prefix = path_prefix
