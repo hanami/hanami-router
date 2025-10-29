@@ -818,8 +818,7 @@ module Hanami
       end
 
       if as
-        as = prefixed_underscored_name(as)
-        add_named_route(path, as, constraints)
+        add_named_route(path, prefixed_name(as), constraints)
       end
 
       if inspect?
@@ -862,8 +861,8 @@ module Hanami
 
     # @since 2.0.0
     # @api private
-    def add_named_route(path, as, constraints)
-      @url_helpers.add(as, Segment.fabricate(path, **constraints))
+    def add_named_route(path, name, constraints)
+      @url_helpers.add(normalized_name(name), Segment.fabricate(path, **constraints))
     end
 
     # @since 2.0.0
@@ -890,13 +889,14 @@ module Hanami
       @path_prefix.join(path).to_s
     end
 
-    # @since x.x.x
     # @api private
-    def prefixed_underscored_name(name)
-      @name_prefix
-        .relative_join(name, PREFIXED_NAME_SEPARATOR)
-        .gsub(UNDERSCORED_NAME_REGEXP, "_")
-        .to_sym
+    def prefixed_name(name)
+      @name_prefix.relative_join(name, PREFIXED_NAME_SEPARATOR).to_s
+    end
+
+    # @api private
+    def normalized_name(name)
+      name.gsub(UNDERSCORED_NAME_REGEXP, "_").to_sym
     end
 
     # Returns a new instance of Hanami::Router with the modified options.
