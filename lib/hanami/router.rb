@@ -929,9 +929,9 @@ module Hanami
       name = Array(name)
 
       if name.size < 2
-        [nil, name.first.to_s]
+        [nil, name.first&.to_s]
       else
-        [name.first.to_s, name[1..].join("_")]
+        [name.first&.to_s, name[1..].join("_")]
       end
     end
 

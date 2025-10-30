@@ -35,6 +35,8 @@ RSpec.describe Hanami::Router, "route names" do
 
           get "/dogs", to: -> {}, as: [:dogs]
           get "/dogs/new", to: -> {}, as: [:new, :very, :good, :boy]
+
+          get "/cows", to: -> {}, as: [nil, :cows]
         end
       end
     end
@@ -43,5 +45,6 @@ RSpec.describe Hanami::Router, "route names" do
     expect(router.path("new_backend_secret_cat")).to eq "/backend/admin/cats/new"
     expect(router.path("backend_secret_dogs")).to eq "/backend/admin/dogs"
     expect(router.path("new_backend_secret_very_good_boy")).to eq "/backend/admin/dogs/new"
+    expect(router.path("backend_secret_cows")).to eq "/backend/admin/cows"
   end
 end
