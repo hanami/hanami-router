@@ -40,12 +40,19 @@ module Hanami
 
       def call(env)
         rack_input = env[Rack::RACK_INPUT]
+        return @app.call(env) unless rack_input
 
-        rack_input.rewind if rack_input.respond_to?(:rewind)
-        body = rack_input&.read
+        # Rewind the body before we attempt to read it
+        if rack_input.respond_to?(:rewind)
+          rack_input.rewind
+        else
+          rack_input = env[Rack::RACK_INPUT] = Rack::RewindableInput.new(rack_input)
+        end
+
+        body = rack_input.read
 
         if body.nil? || body.empty?
-          rack_input.rewind if rack_input.respond_to?(:rewind)
+          rack_input.rewind
           return @app.call(env)
         end
 
@@ -54,7 +61,7 @@ module Hanami
           env[ROUTER_PARAMS] = _symbolize(env[Router::ROUTER_PARSED_BODY])
         end
 
-        rack_input.rewind if rack_input.respond_to?(:rewind)
+        rack_input.rewind
         @app.call(env)
       end
 
