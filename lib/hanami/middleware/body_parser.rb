@@ -39,17 +39,22 @@ module Hanami
       end
 
       def call(env)
-        body = env[RACK_INPUT]&.read
-        return @app.call(env) if body.nil? || body.empty?
+        rack_input = env[Rack::RACK_INPUT]
 
-        # Somebody might try to read this stream
-        Rack::RewindableInput.new(env[RACK_INPUT]).rewind
+        rack_input.rewind if rack_input.respond_to?(:rewind)
+        body = rack_input&.read
+
+        if body.nil? || body.empty?
+          rack_input.rewind if rack_input.respond_to?(:rewind)
+          return @app.call(env)
+        end
 
         if (parser = @parsers[media_type(env)])
           env[Router::ROUTER_PARSED_BODY] = parser.parse(body, env)
           env[ROUTER_PARAMS] = _symbolize(env[Router::ROUTER_PARSED_BODY])
         end
 
+        rack_input.rewind if rack_input.respond_to?(:rewind)
         @app.call(env)
       end
 

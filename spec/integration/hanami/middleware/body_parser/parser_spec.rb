@@ -79,6 +79,42 @@ RSpec.describe Hanami::Middleware::BodyParser do
       end
     end
 
+    describe "request with body previously read" do
+      subject(:env) do
+        Rack::MockRequest.env_for("/", method: "POST", "CONTENT_TYPE" => content_type, input: body).tap do |env|
+          Rack::RewindableInput.new(env["rack.input"]).read
+          middleware.call(env)
+        end
+      end
+
+      context "request matches a parser" do
+        let(:body) { %({"attribute":"ok"}) }
+        let(:content_type) { "application/json" }
+
+        it "rewinds the body and parses it" do
+          expect(env["router.params"]).to eq(attribute: "ok")
+        end
+
+        it "rewinds the body after parsing" do
+          expect(env["rack.input"].read).to eq body
+        end
+      end
+
+      context "request does not match a parser" do
+        let(:body) { "hello world" }
+        let(:content_type) { "application/custom" }
+
+        it "does not parse the body" do
+          expect(env.keys).not_to include("router.parsed_body")
+          expect(env.keys).not_to include("router.params")
+        end
+
+        it "rewinds the body" do
+          expect(env["rack.input"].read).to eq body
+        end
+      end
+    end
+
     describe "request with unknown content type" do
       let(:body)         { %(<element>ok</element>) }
       let(:content_type) { "application/xml" }
@@ -91,6 +127,15 @@ RSpec.describe Hanami::Middleware::BodyParser do
 
     describe "request without content type" do
       let(:body) { "hanami=ok" }
+
+      it "does not parse body params" do
+        expect(env.keys).not_to include("router.parsed_body")
+        expect(env.keys).not_to include("router.params")
+      end
+    end
+
+    describe "requerst without body" do
+      let(:body) { nil }
 
       it "does not parse body params" do
         expect(env.keys).not_to include("router.parsed_body")
