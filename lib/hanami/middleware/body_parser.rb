@@ -42,6 +42,9 @@ module Hanami
         input = env[RACK_INPUT]
         return @app.call(env) unless input
 
+        parser = @parsers[media_type(env)]
+        return @app.call(env) unless parser
+
         # The input in Rack 3 is not rewindable. For compatbility with Rack 2, make the input
         # rewindable, rewind it for reading, then rewind once more before returning to the app.
         input = env[RACK_INPUT] = Rack::RewindableInput.new(input) unless input.respond_to?(:rewind)
@@ -51,10 +54,8 @@ module Hanami
 
         return @app.call(env) if body.nil? || body.empty?
 
-        if (parser = @parsers[media_type(env)])
-          env[Router::ROUTER_PARSED_BODY] = parser.parse(body, env)
-          env[ROUTER_PARAMS] = _symbolize(env[Router::ROUTER_PARSED_BODY])
-        end
+        env[Router::ROUTER_PARSED_BODY] = parser.parse(body, env)
+        env[ROUTER_PARAMS] = _symbolize(env[Router::ROUTER_PARSED_BODY])
 
         @app.call(env)
       end
