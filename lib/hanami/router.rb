@@ -107,12 +107,10 @@ module Hanami
         return not_allowed(env) || not_found(env)
       end
 
-      # Rack 3 no longer requires "rack.input" to be rewindable. Force input to be
-      # rewindable to maintain Rack 2 behavior.
-      #
-      # @since 2.2.0
-      if Hanami::Router.rack_3? && env[::Rack::RACK_INPUT]
-        env[::Rack::RACK_INPUT] = Rack::RewindableInput.new(env[::Rack::RACK_INPUT])
+      # Rack 3 no longer requires "rack.input" to be rewindable. Force input to be rewindable to
+      # maintain Rack 2 behavior while we're still supporting both.
+      if (input = env[::Rack::RACK_INPUT]) && !input.respond_to?(:rewind)
+        env[::Rack::RACK_INPUT] = Rack::RewindableInput.new(input)
       end
 
       endpoint.call(
