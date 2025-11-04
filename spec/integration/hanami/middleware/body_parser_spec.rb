@@ -77,5 +77,22 @@ RSpec.describe Hanami::Middleware::BodyParser do
     rescue Hanami::Middleware::BodyParser::UnknownParserError => exception
       expect(exception.message).to eq("Unknown body parser: `:a_parser'")
     end
+
+    it "accepts a custom parser class" do
+      custom_parser_class = Class.new(Hanami::Middleware::BodyParser::Parser) do
+        def self.mime_types = ["application/custom"]
+        def parse(_body) = "custom"
+      end
+
+      body_parser = Hanami::Middleware::BodyParser.new(app, custom_parser_class)
+      expect(body_parser.instance_variable_get("@parsers")["application/custom"])
+        .to be_instance_of(custom_parser_class)
+
+      body_parser = Hanami::Middleware::BodyParser.new(app, [custom_parser_class => "application/x-custom"])
+      expect(body_parser.instance_variable_get("@parsers")["application/custom"])
+        .to be_instance_of(custom_parser_class)
+      expect(body_parser.instance_variable_get("@parsers")["application/x-custom"])
+        .to be_instance_of(custom_parser_class)
+    end
   end
 end

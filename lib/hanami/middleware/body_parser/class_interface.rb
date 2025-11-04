@@ -53,9 +53,9 @@ module Hanami
         # @api private
         # @since 2.0.0
         def build_parsers(parser_specs, registry = {})
-          return DEFAULT_BODY_PARSERS if parser_specs.empty?
-
           parsers = Array(parser_specs).flatten(0)
+
+          return DEFAULT_BODY_PARSERS if parsers.empty?
 
           parsers.each_with_object(registry) do |spec, memo|
             if spec.is_a?(Hash) && spec.size > 1
