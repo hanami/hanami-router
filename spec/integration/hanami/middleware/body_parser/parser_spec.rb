@@ -97,5 +97,20 @@ RSpec.describe Hanami::Middleware::BodyParser do
         expect(env.keys).not_to include("router.params")
       end
     end
+
+    describe "already parsed request" do
+      subject(:env) do
+        Rack::MockRequest.env_for("/", method: "POST", "CONTENT_TYPE" => content_type, input: body, "router.parsed_body" => {"already" => "parsed"}).tap do |env|
+          middleware.call(env)
+        end
+      end
+
+      let(:body)         { %({"attribute":"ok"}) }
+      let(:content_type) { "application/json" }
+
+      it "does not parse the request body" do
+        expect(env["router.parsed_body"]).to eq({"already" => "parsed"})
+      end
+    end
   end
 end

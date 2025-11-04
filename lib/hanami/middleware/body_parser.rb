@@ -39,6 +39,8 @@ module Hanami
       end
 
       def call(env)
+        return @app.call(env) if env.key?(Router::ROUTER_PARSED_BODY)
+
         input = env[RACK_INPUT]
         return @app.call(env) unless input
 
