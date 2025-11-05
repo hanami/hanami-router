@@ -64,7 +64,6 @@ module Hanami
 
       private
 
-      # @api private
       def _symbolize(body)
         if body.is_a?(::Hash)
           Router::Params.deep_symbolize(body)
@@ -73,14 +72,6 @@ module Hanami
         end
       end
 
-      # @api private
-      def _parse(env, body)
-        @parsers[
-          media_type(env)
-        ].parse(body)
-      end
-
-      # @api private
       def media_type(env)
         ct = content_type(env)
         return unless ct
@@ -88,7 +79,6 @@ module Hanami
         ct.split(MEDIA_TYPE_MATCHER, 2).first.downcase
       end
 
-      # @api private
       def content_type(env)
         content_type = env[CONTENT_TYPE]
         content_type.nil? || content_type.empty? ? nil : content_type
