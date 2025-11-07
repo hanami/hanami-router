@@ -2,6 +2,38 @@
 
 Rack compatible HTTP router for Ruby
 
+## v2.3.0
+
+### Changed
+
+- Allow scopes to be given a custom name prefix, with `as:`. This prefix is given to any named routes within the scope. (@timriley in #286)
+- Allow route names given to `as:` to specify their own _prefix_, which goes before any name prefixes added by the scopes the route is nested within. To specify a prefix, provide an array to `as:`. (@timriley in #286)
+
+  ```ruby
+  scope "backend" do
+    scope "admin", as: :secret do
+      get "/cats/new", to: ->(*) { [200, {}, ["OK"]] }, as: [:new, :cat]
+    end
+  end
+
+  router.path(:new_backend_secret_cat)
+  # => "/backend/admin/cats/new
+  ```
+- As part of Rack v2/v3 compatibility, improve coordination between `Hanami::Middleware::BodyParser` and `Hanami::Router` regarding access of the request body. (@timriley in #287)
+
+  `BodyParser` will now make `env["rack.input"]` rewindable, and rewind the body after accessing it, ensuring downstream users can still read `"rack.input"` if needed. `Router` will only attempt to make `"rack.input"` rewindable if it hasn’t already been made so.
+- Allow `Hanami::Middleware::BodyParser` to be initialized with a single body parser. (@timriley in #288)
+
+  ```ruby
+  class MyCustomParser < Hanami::Middleware::BodyParser::Parser
+    def self.mime_types = ["application/custom"]
+    def parse(_body) = "..."
+  end
+
+  # Previously, this required [MyCustomParser]
+  Hanami::Middleware::BodyParser.new(app, MyCustomParser)
+  ```
+
 ## v2.3.0.beta2 - 2025-10-17
 
 ### Changed
