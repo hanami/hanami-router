@@ -9,11 +9,11 @@ module Hanami
       # @since 1.3.0
       # @api private
       class JsonParser < Parser
-        # @since 1.3.0
         # @api private
-        def self.mime_types
-          ["application/json", "application/vnd.api+json"]
-        end
+        MEDIA_TYPES = ["application/json", "application/vnd.api+json"].freeze
+
+        # @api private
+        def self.media_types = MEDIA_TYPES
 
         # Parse a json string
         #

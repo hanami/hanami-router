@@ -63,12 +63,12 @@ module Hanami
                 build_parsers([key => [value]], memo)
               end
             else
-              name, *mime_types = Array(*spec).flatten(0)
+              name, *media_types = Array(*spec).flatten(0)
 
-              parser = build(name, mime_types: mime_types.flatten)
+              parser = build(name, media_types: media_types.flatten)
 
-              parser.mime_types.each do |mime|
-                memo[mime] = parser
+              parser.media_types.each do |type|
+                memo[type] = parser
               end
             end
           end
@@ -78,7 +78,7 @@ module Hanami
 
         # @api private
         # @since 1.3.0
-        PARSER_METHODS = %i[mime_types parse].freeze
+        PARSER_METHODS = %i[media_types parse].freeze
 
         # @api private
         # @since 2.0.0

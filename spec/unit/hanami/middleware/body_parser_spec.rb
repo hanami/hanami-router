@@ -6,14 +6,9 @@ require "hanami/middleware/body_parser/json_parser"
 RSpec.describe Hanami::Middleware::BodyParser do
   describe ".build" do
     let(:parser_class) do
-      Class.new do
-        def mime_types
-          ["text"]
-        end
-
-        def parse(body)
-          body
-        end
+      Class.new(Hanami::Middleware::BodyParser::Parser) do
+        def self.media_types = ["text"]
+        def parse(body) = body
       end
     end
 

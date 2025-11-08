@@ -14,14 +14,14 @@ RSpec.describe Hanami::Middleware::BodyParser do
         .to be_instance_of(Hanami::Middleware::BodyParser::JsonParser)
     end
 
-    it "accepts a parser name with additional mime-type" do
+    it "accepts a parser name with additional media type" do
       body_parser = Hanami::Middleware::BodyParser.new(app, [json: "application/json+scim"])
 
       expect(body_parser.instance_variable_get("@parsers")["application/json+scim"])
         .to be_instance_of(Hanami::Middleware::BodyParser::JsonParser)
     end
 
-    it "accepts a parser name with additional mime-types" do
+    it "accepts a parser name with additional media types" do
       body_parser = Hanami::Middleware::BodyParser.new(
         app, [json: ["application/json+scim", "application/json+foo"]]
       )
@@ -30,11 +30,9 @@ RSpec.describe Hanami::Middleware::BodyParser do
         .to be_instance_of(Hanami::Middleware::BodyParser::JsonParser)
     end
 
-    it "accepts multiple parser names with additional mime-type" do
+    it "accepts multiple parser names with additional media type" do
       class Hanami::Middleware::BodyParser::XmlParser < Hanami::Middleware::BodyParser::Parser
-        def self.mime_types
-          ["application/xml"]
-        end
+        def self.media_types = ["application/xml"]
       end
 
       body_parser = Hanami::Middleware::BodyParser.new(
@@ -54,9 +52,7 @@ RSpec.describe Hanami::Middleware::BodyParser do
 
     it "accepts multiple parser class ids" do
       class Hanami::Middleware::BodyParser::XmlParser < Hanami::Middleware::BodyParser::Parser
-        def self.mime_types
-          ["application/xml"]
-        end
+        def self.media_types = ["application/xml"]
       end
 
       body_parser = Hanami::Middleware::BodyParser.new(app, [:json, :xml])
@@ -80,7 +76,7 @@ RSpec.describe Hanami::Middleware::BodyParser do
 
     it "accepts a custom parser class" do
       custom_parser_class = Class.new(Hanami::Middleware::BodyParser::Parser) do
-        def self.mime_types = ["application/custom"]
+        def self.media_types = ["application/custom"]
         def parse(_body) = "custom"
       end
 

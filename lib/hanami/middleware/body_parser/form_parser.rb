@@ -9,17 +9,12 @@ module Hanami
       # @since 2.0.1
       # @api private
       class FormParser < Parser
-        # @since 2.0.1
         # @api private
-        MIME_TYPES = [
-          "multipart/form-data"
-        ].freeze
+        MEDIA_TYPES = ["multipart/form-data"].freeze
 
         # @since 2.0.1
         # @api private
-        def self.mime_types
-          MIME_TYPES
-        end
+        def self.media_types = MEDIA_TYPES
 
         # Parse a multipart body payload (form file uploading)
         #

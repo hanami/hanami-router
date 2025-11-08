@@ -22,15 +22,21 @@ Rack compatible HTTP router for Ruby
 - As part of Rack v2/v3 compatibility, improve coordination between `Hanami::Middleware::BodyParser` and `Hanami::Router` regarding access of the request body. (@timriley in #287)
 
   `BodyParser` will now make `env["rack.input"]` rewindable, and rewind the body after accessing it, ensuring downstream users can still read `"rack.input"` if needed. `Router` will only attempt to make `"rack.input"` rewindable if it hasn’t already been made so.
-- Allow `Hanami::Middleware::BodyParser` to be initialized with a single body parser. (@timriley in #288)
+- Change `Hanami::Middleware::BodyParser::Parser` to refer to `media_types` instead of `mime_types`. (@timriley in #289)
+
+  A body parser subclass should now look like this:
 
   ```ruby
-  class MyCustomParser < Hanami::Middleware::BodyParser::Parser
-    def self.mime_types = ["application/custom"]
-    def parse(_body) = "..."
+  class CustomParser < Hanami::Middleware::BodyParser::Parser
+    def self.media_types = ["application/custom"]
+    def parse(body)
+      body # Your parsing logic here
+    end
   end
+  ```
+- Allow `Hanami::Middleware::BodyParser` to be initialized with a single body parser, instead of requiring an array. (@timriley in #288)
 
-  # Previously, this required [MyCustomParser]
+  ```ruby
   Hanami::Middleware::BodyParser.new(app, MyCustomParser)
   ```
 
