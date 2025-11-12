@@ -7,8 +7,8 @@ require "hanami/router/version"
 Gem::Specification.new do |spec|
   spec.name          = "hanami-router"
   spec.version       = Hanami::Router::VERSION
-  spec.authors       = ["Luca Guidi"]
-  spec.email         = ["me@lucaguidi.com"]
+  spec.authors       = ["Hanakai team"]
+  spec.email         = ["info@hanakai.org"]
   spec.description   = "Rack compatible HTTP router for Ruby"
   spec.summary       = "Rack compatible HTTP router for Ruby and Hanami"
   spec.homepage      = "http://hanamirb.org"
