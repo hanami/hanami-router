@@ -14,8 +14,12 @@ module Hanami
         if @prefix.to_s == "/"
           env[::Rack::SCRIPT_NAME] = EMPTY_STRING
         else
-          env[::Rack::SCRIPT_NAME] = env[::Rack::SCRIPT_NAME].to_s + @prefix.to_s
-          env[::Rack::PATH_INFO] = env[::Rack::PATH_INFO].sub(@prefix.to_s, EMPTY_STRING)
+          # To set SCRIPT_NAME, use the actual matched portion of the path, not the prefix string
+          # itself. This is important for prefixes with dynamic segments like "/stations/:id". In
+          # this case, we want e.g. "/stations/42" as SCRIPT_NAME, not "/stations/:id".
+          matched_path = match.to_s
+          env[::Rack::SCRIPT_NAME] = env[::Rack::SCRIPT_NAME].to_s + matched_path
+          env[::Rack::PATH_INFO] = env[::Rack::PATH_INFO].sub(matched_path, EMPTY_STRING)
           env[::Rack::PATH_INFO] = DEFAULT_PREFIX if env[::Rack::PATH_INFO] == EMPTY_STRING
         end
 
