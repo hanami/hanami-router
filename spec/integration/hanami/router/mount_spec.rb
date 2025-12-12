@@ -98,4 +98,47 @@ RSpec.describe Hanami::Router do
       end
     end
   end
+
+  context "PATH_INFO handling" do
+    let(:router) do
+      root_endpoint = ->(env) {
+        path_info = env[Rack::PATH_INFO]
+        [200, rack_headers({"Content-Length" => path_info.bytesize.to_s}), [path_info]]
+      }
+      articles_endpoint = ->(_env) {
+        [200, rack_headers({"Content-Length" => "9"}), ["/articles"]]
+      }
+
+      mounted_router = Hanami::Router.new do
+        get "/", to: root_endpoint
+        get "/articles", to: articles_endpoint
+      end
+
+      Hanami::Router.new do
+        mount mounted_router, at: "/api"
+      end
+    end
+    let(:app) { Rack::MockRequest.new(router) }
+
+    it "preserves empty PATH_INFO and matches the root route when request matches mount point exactly" do
+      response = app.request("GET", "/api", lint: true)
+
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("")
+    end
+
+    it "preserves slash PATH_INFO and matches the root route when request has trailing slash" do
+      response = app.request("GET", "/api/", lint: true)
+
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("/")
+    end
+
+    it "passes PATH_INFO for sub-paths" do
+      response = app.request("GET", "/api/articles", lint: true)
+
+      expect(response.status).to eq(200)
+      expect(response.body).to eq("/articles")
+    end
+  end
 end
