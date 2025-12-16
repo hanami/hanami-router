@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.metadata["rubygems_mfa_required"] = "true"
   spec.required_ruby_version = ">= 3.2"
 
-  spec.add_dependency "rack",               ">= 2.0"
+  spec.add_dependency "rack",               ">= 2.2.16"
   spec.add_dependency "mustermann",         "~> 3.0"
   spec.add_dependency "mustermann-contrib", "~> 3.0"
   spec.add_dependency "csv",                "~> 3.3"
