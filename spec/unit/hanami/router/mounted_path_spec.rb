@@ -66,5 +66,31 @@ RSpec.describe Hanami::Router::MountedPath do
         expect(env[Rack::PATH_INFO]).to eq("/")
       end
     end
+
+    context "with a prefix containing dynamic segments" do
+      let(:prefix) { Mustermann.new("/stations/:station_id", type: :rails, version: "5.0") }
+
+      before :each do
+        env.merge!(Rack::PATH_INFO => "/stations/42/trains")
+      end
+
+      it "adds the matched path to the SCRIPT_NAME" do
+        subject.endpoint_and_params(env)
+
+        expect(env[Rack::SCRIPT_NAME]).to eq("/stations/42")
+      end
+
+      it "removes the matched portion from the PATH_INFO" do
+        subject.endpoint_and_params(env)
+
+        expect(env[Rack::PATH_INFO]).to eq("/trains")
+      end
+
+      it "returns the app and named captures" do
+        result = subject.endpoint_and_params(env)
+
+        expect(result).to eq([app, {"station_id" => "42"}])
+      end
+    end
   end
 end
