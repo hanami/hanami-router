@@ -211,7 +211,7 @@ module Api
   class App
     def call(env)
       case env["PATH_INFO"]
-      when "/"
+      when ""
         [200, {}, ["home"]]
       when "/articles"
         [200, {}, ["articles"]]

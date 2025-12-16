@@ -642,7 +642,12 @@ module Hanami
     # @since 2.0.0
     # @api private
     def fixed(env)
-      @fixed.dig(env[::Rack::REQUEST_METHOD], env[::Rack::PATH_INFO])
+      path_info = env[::Rack::PATH_INFO]
+      # Treat empty PATH_INFO as "/" for route matching. This allows root routes (defined as "/") to
+      # match the empty PATH_INFO that is set for requests to a mount without a trailing slash.
+      path_info = DEFAULT_PREFIX if path_info == EMPTY_STRING
+
+      @fixed.dig(env[::Rack::REQUEST_METHOD], path_info)
     end
 
     # @since 2.0.0

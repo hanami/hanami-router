@@ -20,7 +20,6 @@ module Hanami
           matched_path = match.to_s
           env[::Rack::SCRIPT_NAME] = env[::Rack::SCRIPT_NAME].to_s + matched_path
           env[::Rack::PATH_INFO] = env[::Rack::PATH_INFO].sub(matched_path, EMPTY_STRING)
-          env[::Rack::PATH_INFO] = DEFAULT_PREFIX if env[::Rack::PATH_INFO] == EMPTY_STRING
         end
 
         [@app, match.named_captures]
