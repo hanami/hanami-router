@@ -50,6 +50,8 @@ RSpec.describe Hanami::Router do
           root to: ->(env) { [200, {}, ["Root (#{env.dig('router.params', :locale)})!"]] }
 
           get "/trees", to: ->(env) { [200, {}, ["Trees (#{env.dig('router.params', :locale)})!"]] }
+
+          mount ->(env) { [200, {}, ["#{env["SCRIPT_NAME"]}, #{env["PATH_INFO"]}"]] }, at: "/mount"
         end
       end
 
@@ -57,6 +59,7 @@ RSpec.describe Hanami::Router do
 
       expect(app.request("GET", "/it", lint: true).body).to eq("Root (it)!")
       expect(app.request("GET", "/it/trees", lint: true).body).to eq("Trees (it)!")
+      expect(app.request("GET", "/it/mount/foo", lint: true).body).to eq "/it/mount, /foo"
     end
 
     context "nested" do
