@@ -1,6 +1,47 @@
 # Hanami::Router
 
-Rack compatible HTTP router for Ruby
+Rack compatible HTTP router for Ruby.
+
+## [Unreleased]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+[Unreleased]: http://github.com/hanami/hanami-router/compare/v2.3.1...main
+
+## [2.3.1] - 2025-12-17
+
+### Changed
+
+- Require Rack version 2.2.16 or higher, which is the earliest version of Rack 2.x that will run on Ruby 4.0 as well as our currently supported Ruby versions (3.2, 3.3, 3.4). (@cllns in 2b15582)
+
+### Fixed
+
+- Set correct Rack `"SCRIPT_NAME"` value for mounts under dynamic prefixes. (@timriley in #294).
+
+    For example, given a mount under `scope '/stations/:station_id'`, the "SCRIPT_NAME" will be e.g. `"/stations/42"` rather than `"/stations/:station_id"`.
+- For a mount with a prefix, allow the Rack `"PATH_INFO"` value to remain an empty string when a request is made for that exact prefix only. (@timriley in #295)
+
+    Given the following:
+    
+    ```ruby
+    mount ->(env) { [200, {}, [env["PATH_INFO"]] }, at: "/settings"
+    ```
+    
+    When a request is made to `"/settings"`, the `"SCRIPT_NAME"` will be `"/settings"` and `"PATH_INFO"` will be `""`. This ensures that the Rack environment can be used to reconstruct the same path as used for the original request.
+    
+    To ensure a mounted router instance can still route to its root, treat `""` the same as `"/"` for the purposes of matching routes.
+
+[2.3.1]: http://github.com/hanami/hanami-router/compare/v2.3.0...v2.3.1
 
 ## v2.3.0 - 2025-11-12
 
