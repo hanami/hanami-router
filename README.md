@@ -228,16 +228,34 @@ router.call(Rack::MockRequest.env_for("/unknown")).status # => 499
 ### Body Parsers
 
 Rack ignores request bodies unless they come from a form submission.
+This means some configuration is required for requests that either
+include multipart form data, or body text of a different content type.
+
+__Hanami::Router__ includes a feature enables body parsing for specific MIME Types.
+It comes with a built-in multipart form parser, a JSON parser, and also
+the ability to pass custom parsers.
+
+#### Multipart Form Parsing
+
+To enable multipart form parameters in Hanami, include the following
+code in your `config.ru` file:
+
+```
+require "hanami/middleware/body_parser"
+use Hanami::Middleware::BodyParser, :form
+```
+
+⚠️ **If you're working with file upload forms, you'll almost certainly want to
+enable this parser because things will not work as expected otherwise.** ⚠️
+
+
+#### JSON Parsing
+
 If we have a JSON endpoint, the payload isn't available in the params hash:
 
 ```ruby
 Rack::Request.new(env).params # => {}
 ```
-
-This feature enables body parsing for specific MIME Types.
-It comes with a built-in JSON parser and allows to pass custom parsers.
-
-#### JSON Parsing
 
 ```ruby
 # frozen_string_literal: true
