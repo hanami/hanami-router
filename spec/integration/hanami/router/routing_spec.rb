@@ -171,7 +171,7 @@ RSpec.describe Hanami::Router do
           end
         end
       end
-    end # main each
+    end
 
     describe "#root" do
       context "path recognition" do

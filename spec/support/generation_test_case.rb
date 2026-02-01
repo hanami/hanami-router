@@ -25,7 +25,7 @@ class GenerationTestCase
       name, expected, args = *test
       args = begin
         args.dup
-      rescue
+      rescue StandardError
         nil
       end
 
@@ -40,7 +40,7 @@ class GenerationTestCase
 
   def _rescue(name, expected, args)
     yield
-  rescue => exception
+  rescue StandardError => exception
     puts "Failed with #{name}, #{expected.inspect}, #{args.inspect}"
     raise exception
   end
