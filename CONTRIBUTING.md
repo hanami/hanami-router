@@ -1,44 +1,29 @@
-## Contributing
-In the spirit of [free software][free-sw], **everyone** is encouraged to help
-improve this project.
+# Issue guidelines
 
-[free-sw]: http://www.fsf.org/licensing/essays/free-sw.html
+## Reporting bugs
 
-Here are some ways *you* can contribute:
+If you’ve found a bug, please report an issue and describe the expected behavior versus what actually happens. If the bug causes a crash, attach a full backtrace. If possible, a reproduction script showing the problem is highly appreciated.
 
-* by using alpha, beta, and prerelease versions
-* by reporting bugs
-* by suggesting new features
-* by writing or editing documentation
-* by writing specifications
-* by writing code (**no patch is too small**: fix typos, add comments, clean up
-  inconsistent whitespace)
-* by refactoring code
-* by closing [issues][]
-* by reviewing patches
+## Reporting feature requests
 
-[issues]: https://github.com/hanami/router/issues
+Report a feature request **only after discussing it first on [our forum](https://discourse.hanamirb.org)** and having it accepted. Please provide a concise description of the feature.
 
-## Submitting an Issue
-We use the [GitHub issue tracker][issues] to track bugs and features. Before
-submitting a bug report or feature request, check to make sure it hasn't
-already been submitted. When submitting a bug report, please include a [Gist][]
-that includes a stack trace and any details that may be necessary to reproduce
-the bug, including your gem version, Ruby version, and operating system.
-Ideally, a bug report should include a pull request with failing specs.
+## Reporting questions, support requests, ideas, concerns etc.
 
-[gist]: https://gist.github.com/
+**Please don’t.** Use [our forum](https://discourse.hanamirb.org) instead.
 
-## Submitting a Pull Request
-1. [Fork the repository.][fork]
-2. [Create a topic branch.][branch]
-3. Add specs for your unimplemented feature or bug fix.
-4. Run `bundle exec rake`. If your specs pass, return to step 3.
-5. Implement your feature or bug fix.
-6. Run `bundle exec rake`. If your specs fail, return to step 5.
-7. Add, commit, and push your changes.
-8. [Submit a pull request.][pr]
+# Pull request guidelines
 
-[fork]: http://help.github.com/fork-a-repo/
-[branch]: http://learn.github.com/p/branching.html
-[pr]: http://help.github.com/send-pull-requests/
+A pull request will only be accepted if it addresses a specific issue that was reported previously, or fixes typos, mistakes in documentation etc.
+
+Other requirements:
+
+1. Do not open a pull request if you can't provide tests along with it. If you have problems writing tests, ask for help in the related issue.
+2. Follow the style conventions of the surrounding code. In most cases, this is standard ruby style.
+3. Add API documentation if it's a new feature.
+4. Update API documentation if it changes an existing feature.
+5. Bonus points for sending a PR which updates user documentation in our [site repository](https://github.com/hanakai-rb/site).
+
+# Asking for help
+
+If these guidelines aren't helpful, and you're stuck, please post a message on [our forum](https://discourse.dry-rb.org) or [find us in chat](https://discord.gg/KFCxDmk3JQ).

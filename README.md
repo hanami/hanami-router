@@ -1,20 +1,9 @@
-# Hanami::Router
+<!--- This file is synced from hanakai-rb/repo-sync -->
 
-Rack compatible, lightweight, and fast HTTP Router for Ruby and [Hanami](http://hanamirb.org).
+[rubygem]: https://rubygems.org/gems/hanami-router
+[actions]: https://github.com/hanami/hanami-router/actions
 
-## Status
-
-[![Gem Version](https://badge.fury.io/rb/hanami-router.svg)](https://badge.fury.io/rb/hanami-router)
-[![CI](https://github.com/hanami/router/actions/workflows/ci.yml/badge.svg)](https://github.com/hanami/router/actions?query=workflow%3Aci+branch%3Amain)
-
-## Contact
-
-* Home page: http://hanamirb.org
-* Mailing List: http://hanamirb.org/mailing-list
-* API Doc: http://rubydoc.info/gems/hanami-router
-* Bugs/Issues: https://github.com/hanami/router/issues
-* Chat: http://chat.hanamirb.org
-
+# Hanami Router [![Gem Version](https://badge.fury.io/rb/hanami-router.svg)][rubygem] [![CI Status](https://github.com/hanami/hanami-router/workflows/CI/badge.svg)][actions]
 
 ## Installation
 
@@ -341,10 +330,6 @@ route.verb      # "POST"
 route.routable? # => false
 ```
 
-## Versioning
-
-__Hanami::Router__ uses [Semantic Versioning 2.0.0](http://semver.org)
-
 ## Contributing
 
 1. Fork this repo to your account and clone it locally (`git clone git@github.com:your-pseudo/your-cloned-repo.git`)
@@ -356,8 +341,15 @@ __Hanami::Router__ uses [Semantic Versioning 2.0.0](http://semver.org)
 7. Push to the branch (`git push origin my-new-feature`)
 8. Create new Pull Request on Github with some context on what you're trying to fix or to improve with this contribution
 
-Thank you for contributing! 
+Thank you for contributing!
 
-## Copyright
+## Links
 
-Copyright © 2014–2025 Hanami Team – Released under MIT License
+- [User documentation](https://hanamirb.org)
+- [API documentation](http://rubydoc.info/gems/hanami-router)
+
+
+## License
+
+See `LICENSE` file.
+
