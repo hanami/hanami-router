@@ -5,6 +5,8 @@ require "hanami/middleware/body_parser"
 
 require "securerandom"
 
+# rubocop:disable Style/CommentedKeyword
+
 class RandomMiddleware
   HEADER_PREFIX = "X-Random"
   private_constant :HEADER_PREFIX
@@ -1251,3 +1253,5 @@ module Users
     end
   end
 end
+
+# rubocop:enable Style/CommentedKeyword
