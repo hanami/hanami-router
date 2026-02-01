@@ -1,0 +1,18 @@
+name:
+  gem: hanami-router
+  constant: Hanami::Router
+  title: Hanami Router
+github_org: hanami
+ci:
+  matrix:
+    rack: ["~> 2.0", "~> 3.0"]
+gemspec:
+  authors: ["Hanakai team"]
+  email: ["info@hanakai.org"]
+  summary: "Rack compatible HTTP router for Ruby and Hanami"
+  homepage: "https://hanamirb.org"
+  runtime_dependencies:
+    - ["rack", ">= 2.2.16"]
+    - ["mustermann", "~> 3.0"]
+    - ["mustermann-contrib", "~> 3.0"]
+    - ["csv", "~> 3.3"]
