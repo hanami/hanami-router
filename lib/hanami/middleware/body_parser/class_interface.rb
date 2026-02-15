@@ -60,7 +60,7 @@ module Hanami
           parsers.each_with_object(registry) do |spec, memo|
             if spec.is_a?(Hash) && spec.size > 1
               spec.each do |key, value|
-                build_parsers([key => [value]], memo)
+                build_parsers([{key => [value]}], memo)
               end
             else
               name, *media_types = Array(*spec).flatten(0)
