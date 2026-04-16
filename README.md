@@ -324,13 +324,13 @@ route.endpoint  # => "books.show"
 route.params    # => {:id=>"23"}
 route.routable? # => true
 
-route = router.recognize(:book, id: 23)
+route = router.recognize(:book, params: {id: 23})
 route.verb      # "GET"
 route.endpoint  # => "books.show"
 route.params    # => {:id=>"23"}
 route.routable? # => true
 
-route = router.recognize("/books/23", {}, method: :post)
+route = router.recognize("/books/23", method: :post)
 route.verb      # "POST"
 route.routable? # => false
 ```

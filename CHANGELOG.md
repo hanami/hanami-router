@@ -8,11 +8,34 @@ Rack compatible HTTP router for Ruby.
 
 ### Changed
 
+- **BREAKING**: `Router#recognize` signature changed from `(env, params = {}, options = {})` to `(target, params: {}, **options)`. Rack env options (like `method:`) are now kwargs, and named-route variables must be passed under the `params:` keyword.
+
+    Migration:
+
+    ```ruby
+    # Before
+    router.recognize(:book, id: 23)
+    router.recognize("/books/23", {}, method: :post)
+
+    # After
+    router.recognize(:book, params: {id: 23})
+    router.recognize("/books/23", method: :post)
+    ```
+
+    String-keyed Rack env entries (e.g. `"HTTP_AUTHORIZATION"`) can no longer be passed through `recognize` directly, since kwargs only accept symbol keys. Build the env explicitly and pass it as the first argument instead:
+
+    ```ruby
+    env = Rack::MockRequest.env_for("/books/23", "HTTP_AUTHORIZATION" => "token")
+    router.recognize(env)
+    ```
+
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- `Router#recognize` now correctly honours the `method:` kwarg when called without an explicit `params` hash. Previously `router.recognize("/images", method: "POST")` silently fell back to GET because `method:` was absorbed into the positional `params` argument. (#271)
 
 ### Security
 
