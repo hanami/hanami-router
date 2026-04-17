@@ -35,3 +35,4 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "mustermann", "~> 3.1"
   spec.add_runtime_dependency "csv", "~> 3.3"
 end
+
