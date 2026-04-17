@@ -67,7 +67,7 @@ Hanami::Router.new do
   get "/dashboard",   to: Dashboard::Index
   get "/rack-app",    to: RackApp.new
 
-  redirect "/legacy", to: "/"
+  permanent_redirect "/legacy", to: "/"
 
   mount Api::App, at: "/api"
 
@@ -146,9 +146,13 @@ end
 ```ruby
 Hanami::Router.new do
   get "/redirect_destination", to: ->(env) { [200, {}, ["Redirect destination!"]] }
-  redirect "/legacy",          to: "/redirect_destination"
-  redirect "/learn-more",      to: "https://hanamirb.org/"
-  redirect "/chat",            to: URI("xmpp://myapp.net/")
+  permanent_redirect "/legacy",     to: "/redirect_destination"
+  temporary_redirect "/today",      to: "/redirect_destination"
+  permanent_redirect "/learn-more", to: "https://hanamirb.org/"
+  permanent_redirect "/chat",       to: URI("xmpp://myapp.net/")
+
+  # For less common codes (303, 307, 308), use redirect with an explicit code:
+  redirect "/submit", to: "/result", code: 303
 end
 ```
 
