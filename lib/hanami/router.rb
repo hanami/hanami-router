@@ -522,21 +522,26 @@ module Hanami
       url_helpers.url(name, variables)
     end
 
-    # Recognize the given env, path, or name and return a route for testing
+    # Recognize the given target and return a route for testing inspection.
+    #
+    # The target may be a path, a named route, or a Rack env. If the route
+    # cannot be recognized, an unroutable object is still returned for
     # inspection.
     #
-    # If the route cannot be recognized, it still returns an object for testing
-    # inspection.
-    #
-    # @param env [Hash, String, Symbol] Rack env, path or route name
-    # @param options [Hash] a set of options for Rack env or route params
-    # @param params [Hash] a set of params
+    # @param target [String, Symbol, Hash] target (Rack env hash, path, or route name)
+    # @param params [Hash] named-route variables used to build the path
+    # @param options [Hash] Rack env options (e.g. `method:`) forwarded to
+    #   `Rack::MockRequest.env_for`, unless `target` is already a Rack env
+    #   (in which case they are dropped)
     #
     # @return [Hanami::Routing::RecognizedRoute] the recognized route
     #
+    # @note String-keyed Rack env entries (e.g. `"HTTP_AUTHORIZATION"`) cannot
+    #   be passed as kwargs. Build the env via `Rack::MockRequest.env_for` and
+    #   pass it as `target` instead.
+    #
     # @since 0.5.0
     #
-    # @see Hanami::Router#env_for
     # @see Hanami::Routing::RecognizedRoute
     #
     # @example Successful Path Recognition
@@ -570,7 +575,7 @@ module Hanami
     #     get "/books/:id", to: ->(*) { ... }, as: :book
     #   end
     #
-    #   route = router.recognize(:book, id: 23)
+    #   route = router.recognize(:book, params: {id: 23})
     #   route.verb      # => "GET" (default)
     #   route.routable? # => true
     #   route.params    # => {:id=>"23"}
@@ -608,7 +613,7 @@ module Hanami
     #   route.verb      # => "POST"
     #   route.routable? # => false
     #
-    # @example Failing Recognition Named Route With Wrong Params
+    # @example Failing Recognition For Named Route With Missing Params
     #   require "hanami/router"
     #
     #   router = Hanami::Router.new do
@@ -619,21 +624,21 @@ module Hanami
     #   route.verb      # => "GET" (default)
     #   route.routable? # => false
     #
-    # @example Failing Recognition Named Route With Wrong HTTP Verb
+    # @example Failing Recognition For Named Route With Wrong HTTP Verb
     #   require "hanami/router"
     #
     #   router = Hanami::Router.new do
     #     get "/books/:id", to: ->(*) { ... }, as: :book
     #   end
     #
-    #   route = router.recognize(:book, {method: :post}, {id: 1})
+    #   route = router.recognize(:book, params: {id: 1}, method: :post)
     #   route.verb      # => "POST"
     #   route.routable? # => false
     #   route.params    # => {:id=>"1"}
-    def recognize(env, params = {}, options = {})
+    def recognize(target, params: {}, **options)
       require "hanami/router/recognized_route"
 
-      env = env_for(env, params, options)
+      env = env_for(target, params: params, **options)
       endpoint, params = lookup(env)
 
       RecognizedRoute.new(endpoint, _params(env, params))
@@ -684,11 +689,12 @@ module Hanami
 
     protected
 
-    # Fabricate Rack env for the given Rack env, path or named route
+    # Fabricate a Rack env for the given target.
     #
-    # @param env [Hash, String, Symbol] Rack env, path or route name
-    # @param options [Hash] a set of options for Rack env or route params
-    # @param params [Hash] a set of params
+    # @param target [String, Symbol, Hash] target (Rack env hash, path, or route name)
+    # @param params [Hash] named-route variables used to build the path
+    # @param options [Hash] Rack env options forwarded to
+    #   `Rack::MockRequest.env_for`
     #
     # @return [Hash] Rack env
     #
@@ -697,21 +703,20 @@ module Hanami
     #
     # @see Hanami::Router#recognize
     # @see http://www.rubydoc.info/github/rack/rack/Rack%2FMockRequest.env_for
-    def env_for(env, params = {}, options = {})
+    def env_for(target, params: {}, **options)
       require "rack/mock"
 
-      case env
+      case target
       when ::String
-        ::Rack::MockRequest.env_for(env, options)
+        ::Rack::MockRequest.env_for(target, options)
       when ::Symbol
         begin
-          url = path(env, params)
-          return env_for(url, params, options) # rubocop:disable Style/RedundantReturn
+          env_for(path(target, params), **options)
         rescue Hanami::Router::MissingRouteError
           {} # Empty Rack env
         end
       else
-        env
+        target
       end
     end
 
