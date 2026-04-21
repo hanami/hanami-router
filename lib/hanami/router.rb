@@ -394,8 +394,8 @@ module Hanami
     #
     # @since 0.1.0
     #
-    # @see #permanent_redirect
-    # @see #temporary_redirect
+    # @see #redirect_permanent
+    # @see #redirect_temporary
     def redirect(path, code:, to: nil, as: nil)
       get(path, to: _redirect(to, code), as: as)
     end
@@ -407,7 +407,7 @@ module Hanami
     #
     # NOTE: Browsers cache permanent redirects aggressively. Once a client has followed
     # a 301, it may not re-request the original URL, making the redirect hard to undo
-    # without clearing the browser cache. Prefer {#temporary_redirect} when in doubt.
+    # without clearing the browser cache. Prefer {#redirect_temporary} when in doubt.
     #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
@@ -419,8 +419,8 @@ module Hanami
     # @since 3.0.0
     #
     # @see #redirect
-    # @see #temporary_redirect
-    def permanent_redirect(path, to: nil, as: nil)
+    # @see #redirect_temporary
+    def redirect_permanent(path, to: nil, as: nil)
       get(path, to: _redirect(to, PERMANENT_REDIRECT_CODE), as: as)
     end
 
@@ -439,8 +439,8 @@ module Hanami
     # @since 3.0.0
     #
     # @see #redirect
-    # @see #permanent_redirect
-    def temporary_redirect(path, to: nil, as: nil)
+    # @see #redirect_permanent
+    def redirect_temporary(path, to: nil, as: nil)
       get(path, to: _redirect(to, TEMPORARY_REDIRECT_CODE), as: as)
     end
 

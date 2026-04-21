@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 RSpec.describe Hanami::Router do
-  describe "#permanent_redirect" do
+  describe "#redirect_permanent" do
     it "redirects with 301" do
       endpoint = ->(_env) { [200, {}, ["Redirect destination!"]] }
       router = Hanami::Router.new do
         get "/redirect_destination", to: endpoint, as: :destination
-        permanent_redirect "/redirect", to: "/redirect_destination"
+        redirect_permanent "/redirect", to: "/redirect_destination"
       end
 
       env = Rack::MockRequest.env_for("/redirect")
@@ -18,7 +18,7 @@ RSpec.describe Hanami::Router do
 
     it "redirects to an absolute url" do
       router = Hanami::Router.new do
-        permanent_redirect "/redirect", to: "https://hanamirb.org/"
+        redirect_permanent "/redirect", to: "https://hanamirb.org/"
       end
 
       env = Rack::MockRequest.env_for("/redirect")
@@ -29,12 +29,12 @@ RSpec.describe Hanami::Router do
     end
   end
 
-  describe "#temporary_redirect" do
+  describe "#redirect_temporary" do
     it "redirects with 302" do
       endpoint = ->(_env) { [200, {}, ["Redirect destination!"]] }
       router = Hanami::Router.new do
         get "/redirect_destination", to: endpoint, as: :destination
-        temporary_redirect "/redirect", to: "/redirect_destination"
+        redirect_temporary "/redirect", to: "/redirect_destination"
       end
 
       env = Rack::MockRequest.env_for("/redirect")
@@ -46,7 +46,7 @@ RSpec.describe Hanami::Router do
 
     it "redirects to an absolute url" do
       router = Hanami::Router.new do
-        temporary_redirect "/redirect", to: "https://hanamirb.org/"
+        redirect_temporary "/redirect", to: "https://hanamirb.org/"
       end
 
       env = Rack::MockRequest.env_for("/redirect")
