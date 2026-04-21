@@ -380,20 +380,68 @@ module Hanami
 
     # Defines a route that redirects the incoming request to another path.
     #
+    # `code:` is required. For the common cases, prefer {#permanent_redirect} (301)
+    # or {#temporary_redirect} (302). Use this method when you need a less common
+    # redirect code such as 303 See Other, 307 Temporary Redirect, or 308 Permanent Redirect.
+    #
     # @param path [String] the relative URL to be matched
     # @param to [#call] the Rack endpoint
     # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
     #   to add a prefix to the name when nested within scopes.
-    # @param code [Integer] a HTTP status code to use for the redirect
+    # @param code [Integer] the HTTP status code to use for the redirect (e.g. 303, 307, 308)
     #
     # @raise [Hanami::Router::UnknownHTTPStatusCodeError] when an unknown redirect code is given
     #
     # @since 0.1.0
     #
-    # @see #get
-    # @see #initialize
-    def redirect(path, to: nil, as: nil, code: DEFAULT_REDIRECT_CODE)
+    # @see #redirect_permanent
+    # @see #redirect_temporary
+    def redirect(path, code:, to: nil, as: nil)
       get(path, to: _redirect(to, code), as: as)
+    end
+
+    # Defines a route that permanently redirects the incoming request to another path.
+    #
+    # Issues a 301 Moved Permanently response, indicating that the resource has moved to
+    # a new location and all future requests should use the new URL.
+    #
+    # NOTE: Browsers cache permanent redirects aggressively. Once a client has followed
+    # a 301, it may not re-request the original URL, making the redirect hard to undo
+    # without clearing the browser cache. Prefer {#redirect_temporary} when in doubt.
+    #
+    # @param path [String] the relative URL to be matched
+    # @param to [#call] the Rack endpoint
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
+    #
+    # @raise [Hanami::Router::UnknownHTTPStatusCodeError] when an unknown redirect code is given
+    #
+    # @since 3.0.0
+    #
+    # @see #redirect
+    # @see #redirect_temporary
+    def redirect_permanent(path, to: nil, as: nil)
+      get(path, to: _redirect(to, PERMANENT_REDIRECT_CODE), as: as)
+    end
+
+    # Defines a route that temporarily redirects the incoming request to another path.
+    #
+    # Issues a 302 Found response, indicating that the resource is temporarily available
+    # at a different URL and future requests should continue to use the original URL.
+    #
+    # @param path [String] the relative URL to be matched
+    # @param to [#call] the Rack endpoint
+    # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+    #   to add a prefix to the name when nested within scopes.
+    #
+    # @raise [Hanami::Router::UnknownHTTPStatusCodeError] when an unknown redirect code is given
+    #
+    # @since 3.0.0
+    #
+    # @see #redirect
+    # @see #redirect_permanent
+    def redirect_temporary(path, to: nil, as: nil)
+      get(path, to: _redirect(to, TEMPORARY_REDIRECT_CODE), as: as)
     end
 
     # Defines a routing scope. Routes defined in the context of a scope,
@@ -745,9 +793,13 @@ module Hanami
     # @api private
     DEFAULT_RESOLVER = ->(_, to) { to }
 
-    # @since 2.0.0
+    # @since 3.0.0
     # @api private
-    DEFAULT_REDIRECT_CODE = 301
+    PERMANENT_REDIRECT_CODE = 301
+
+    # @since 3.0.0
+    # @api private
+    TEMPORARY_REDIRECT_CODE = 302
 
     # @since 2.0.0
     # @api private

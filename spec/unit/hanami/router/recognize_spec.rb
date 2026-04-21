@@ -13,7 +13,7 @@ RSpec.describe Hanami::Router do
         get "/proc",          to: ->(*) { [200, {}, ["OK"]] },                                          as: :proc
         get "/resources/:id", to: ->(*) { [200, {}, ["PARAMS"]] },                                      as: :params
         get "/missing",       to: "missing#index",                                                      as: :missing
-        redirect "/home",     to: "/"
+        redirect "/home",     to: "/", code: 301
       end
     end
 

@@ -81,7 +81,7 @@ RSpec.describe Hanami::Router do
         router = described_class.new do
           scope "users" do
             scope "settings" do
-              redirect "/image", to: "/avatar"
+              redirect "/image", to: "/avatar", code: 301
             end
           end
         end
@@ -97,7 +97,7 @@ RSpec.describe Hanami::Router do
         described_class.new do
           scope "users" do
             get "/home", to: ->(*) { [200, {}, ["New Home!"]] }
-            redirect "/dashboard", to: "/home"
+            redirect "/dashboard", to: "/home", code: 301
           end
         end
       end

@@ -82,7 +82,7 @@ RSpec.describe Hanami::Router do
 
     it "redirect works with prefix" do
       subject = described_class.new(prefix: prefix) do
-        redirect "/redirect", to: "/redirect_destination"
+        redirect "/redirect", to: "/redirect_destination", code: 301
         get "/redirect_destination", to: ->(*) { [200, {}, ["Redirect destination!"]] }
       end
 

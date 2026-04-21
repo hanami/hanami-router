@@ -6,7 +6,11 @@ Rack compatible HTTP router for Ruby.
 
 ### Added
 
+- `#permanent_redirect` and `#temporary_redirect` helpers for 301 and 302 responses. (@cllns in #283)
+
 ### Changed
+
+- **BREAKING:** `#redirect` now requires an explicit `code:` keyword argument. Use `#permanent_redirect` or `#temporary_redirect` for the common cases, and pass `code:` to `#redirect` for less common codes (303, 307, 308). (@cllns in #283)
 
 ### Deprecated
 
