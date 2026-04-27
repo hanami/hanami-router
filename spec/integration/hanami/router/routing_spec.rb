@@ -111,6 +111,24 @@ RSpec.describe Hanami::Router do
             end
           end
 
+          context "array variable alone" do
+            let(:response) { Rack::MockResponse.new(200, rack_headers({}), "Named %route!") }
+
+            it "recognizes" do
+              expect(router.path(:"#{verb}_named_route", foo: ["bar", "baz"])).to eq("/named_route?foo%5B%5D=bar&foo%5B%5D=baz")
+              expect(router.url(:"#{verb}_named_route", foo: ["bar", "baz"])).to  eq(URI("http://localhost/named_route?foo%5B%5D=bar&foo%5B%5D=baz"))
+            end
+          end
+
+          context "array variable mixed" do
+            let(:response) { Rack::MockResponse.new(200, rack_headers({}), "Named %route!") }
+
+            it "recognizes" do
+              expect(router.path(:"#{verb}_named_route", foo: ["bar", "baz"], var: "plop")).to eq("/named_route?var=plop&foo%5B%5D=bar&foo%5B%5D=baz")
+              expect(router.url(:"#{verb}_named_route", foo: ["bar", "baz"], var: "plop")).to  eq(URI("http://localhost/named_route?var=plop&foo%5B%5D=bar&foo%5B%5D=baz"))
+            end
+          end
+
           context "custom url parts" do
             let(:response) { Rack::MockResponse.new(200, rack_headers({}), "Named route with custom parts!") }
 
