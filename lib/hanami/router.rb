@@ -1040,16 +1040,24 @@ module Hanami
       params ||= {}
       env[PARAMS] ||= {}
 
-      if !env.key?(ROUTER_PARSED_BODY) && _form_urlencoded?(env) && (input = env[::Rack::RACK_INPUT]) and input.rewind
-        env[PARAMS].merge!(::Rack::Utils.parse_nested_query(input.read))
-        input.rewind
-      end
-
+      _merge_form_urlencoded_body!(env)
       env[PARAMS].merge!(::Rack::Utils.parse_nested_query(env[::Rack::QUERY_STRING]))
       env[PARAMS].merge!(params)
       env[PARAMS] = Params.deep_symbolize(env[PARAMS])
 
       env
+    end
+
+    # @since x.x.x
+    # @api private
+    def _merge_form_urlencoded_body!(env)
+      return if env.key?(ROUTER_PARSED_BODY)
+      return unless _form_urlencoded?(env)
+      return unless (input = env[::Rack::RACK_INPUT])
+
+      input.rewind
+      env[PARAMS].merge!(::Rack::Utils.parse_nested_query(input.read))
+      input.rewind # leave the stream readable for downstream consumers
     end
 
     # @since x.x.x
