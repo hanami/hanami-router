@@ -5,5 +5,9 @@ module Hanami
     # @api private
     # @since 2.0.0
     ROUTER_PARSED_BODY = "router.parsed_body"
+
+    # @api private
+    # @since x.x.x
+    FORM_URLENCODED_MEDIA_TYPE = "application/x-www-form-urlencoded"
   end
 end
