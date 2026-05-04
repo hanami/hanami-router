@@ -1040,7 +1040,7 @@ module Hanami
       params ||= {}
       env[PARAMS] ||= {}
 
-      if !env.key?(ROUTER_PARSED_BODY) && (input = env[::Rack::RACK_INPUT]) and input.rewind
+      if !env.key?(ROUTER_PARSED_BODY) && _form_urlencoded?(env) && (input = env[::Rack::RACK_INPUT]) and input.rewind
         env[PARAMS].merge!(::Rack::Utils.parse_nested_query(input.read))
         input.rewind
       end
@@ -1050,6 +1050,12 @@ module Hanami
       env[PARAMS] = Params.deep_symbolize(env[PARAMS])
 
       env
+    end
+
+    # @since x.x.x
+    # @api private
+    def _form_urlencoded?(env)
+      ::Rack::Request.new(env).media_type == "application/x-www-form-urlencoded"
     end
 
     # @since 2.0.0
