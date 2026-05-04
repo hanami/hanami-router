@@ -1055,7 +1055,7 @@ module Hanami
     # @since x.x.x
     # @api private
     def _form_urlencoded?(env)
-      ::Rack::Request.new(env).media_type == "application/x-www-form-urlencoded"
+      ::Rack::Request.new(env).media_type == FORM_URLENCODED_MEDIA_TYPE
     end
 
     # @since 2.0.0
