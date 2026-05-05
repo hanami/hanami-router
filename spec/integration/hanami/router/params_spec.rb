@@ -130,6 +130,16 @@ RSpec.describe "Params" do
     end
   end
 
+  context "multipart payload without body parser" do
+    # See: https://github.com/hanami/router/issues/296
+    it "doesn't merge a multipart body into params" do
+      env, _contents = multipart_fixture("foo.xml")
+      subject.call(env)
+
+      expect(env["router.params"]).to eq({})
+    end
+  end
+
   context "priority" do
     it "gives first level priority to path variables" do
       expected = "23"
