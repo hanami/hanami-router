@@ -1063,7 +1063,11 @@ module Hanami
     # @since x.x.x
     # @api private
     def _form_urlencoded?(env)
-      ::Rack::Request.new(env).media_type == FORM_URLENCODED_MEDIA_TYPE
+      content_type = env[CONTENT_TYPE]
+      return false unless content_type
+
+      content_type == FORM_URLENCODED_MEDIA_TYPE ||
+        content_type.start_with?("#{FORM_URLENCODED_MEDIA_TYPE};")
     end
 
     # @since 2.0.0

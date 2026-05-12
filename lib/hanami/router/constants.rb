@@ -8,6 +8,10 @@ module Hanami
 
     # @api private
     # @since x.x.x
+    CONTENT_TYPE = "CONTENT_TYPE"
+
+    # @api private
+    # @since x.x.x
     FORM_URLENCODED_MEDIA_TYPE = "application/x-www-form-urlencoded"
   end
 end
