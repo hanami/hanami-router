@@ -121,9 +121,12 @@ RSpec.describe "Params" do
   context "JSON payload without body parser" do
     # See: https://github.com/hanami/router/issues/237
     it "doesn't merge a JSON body into params" do
-      input = JSON.generate("foo" => "bar")
-      env = Rack::MockRequest.env_for("/submit?from=ui", method: "POST", params: input)
-      env["CONTENT_TYPE"] = "application/json"
+      env = Rack::MockRequest.env_for(
+        "/submit?from=ui",
+        method: "POST",
+        input: JSON.generate("foo" => "bar"),
+        "CONTENT_TYPE" => "application/json"
+      )
       subject.call(env)
 
       expect(env["router.params"]).to eq(from: "ui")
