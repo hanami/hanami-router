@@ -6,7 +6,6 @@ require_relative "prefix"
 
 module Hanami
   class Router
-    # @since 2.0.0
     # @api private
     class UrlHelpers
       # @since 2.0.0
@@ -19,55 +18,39 @@ module Hanami
         @prefix = Prefix.new(prefix)
       end
 
-      # @since 2.0.0
       # @api private
       def add(name, segment)
         @named[name] = segment
       end
 
-      # @since 2.0.0
       # @api private
       def path(name, variables = {})
-        safe_variables = variables.reject do |key, value|
-          value.is_a?(Array)
-        end
-        array_variables = extract_and_patch_array_variables(variables)
+        scalar_vars = variables.reject { |_, value| value.is_a?(Array) }
+        array_vars = array_query_vars(variables)
 
-        expanded_path = @named.fetch(name.to_sym) do
-          raise MissingRouteError.new(name)
-        end.expand(:append, safe_variables)
+        expanded_path = @named
+          .fetch(name.to_sym) { raise MissingRouteError.new(name) }
+          .expand(:append, scalar_vars)
 
-        append_array_variables(expanded_path, array_variables)
+        return expanded_path if array_vars.empty?
+
+        join_char = expanded_path.include?("?") ? "&" : "?"
+        "#{expanded_path}#{join_char}#{Rack::Utils.build_query(array_vars)}"
       rescue Mustermann::ExpandError => exception
         raise InvalidRouteExpansionError.new(name, exception.message)
       end
 
-      # @since 2.0.0
       # @api private
       def url(name, variables = {})
         @base_url + @prefix.join(path(name, variables)).to_s
       end
 
-      # @since 2.3.3
-      # @api private
-      def extract_and_patch_array_variables(variables = {})
-        variables.select do |key, value|
-          value.is_a?(Array)
-        end.to_h do |key, value|
-          ["#{key}[]", value]
-        end
-      end
+      private
 
-      # @since 2.3.3
-      # @api private
-      def append_array_variables(expanded_path, array_variables)
-        if array_variables.empty?
-          expanded_path
-        else
-          array_query = Rack::Utils.build_query(array_variables)
-          join_char = expanded_path =~ /\?/ ? "&" : "?"
-          "#{expanded_path}#{join_char}#{array_query}"
-        end
+      def array_query_vars(variables = {})
+        variables
+          .select { |_, value| value.is_a?(Array) }
+          .to_h { |key, value| ["#{key}[]", value] }
       end
     end
   end
