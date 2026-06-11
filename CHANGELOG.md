@@ -6,11 +6,7 @@ Rack compatible HTTP router for Ruby.
 
 ### Added
 
-- `#permanent_redirect` and `#temporary_redirect` helpers for 301 and 302 responses. (@cllns in #283)
-
 ### Changed
-
-- **BREAKING:** `#redirect` now requires an explicit `code:` keyword argument. Use `#permanent_redirect` or `#temporary_redirect` for the common cases, and pass `code:` to `#redirect` for less common codes (303, 307, 308). (@cllns in #283)
 
 ### Deprecated
 
@@ -20,7 +16,25 @@ Rack compatible HTTP router for Ruby.
 
 ### Security
 
-[Unreleased]: http://github.com/hanami/hanami-router/compare/v2.3.1...main
+[Unreleased]: http://github.com/hanami/hanami-router/compare/v3.0.0.rc1...HEAD
+
+## [3.0.0.rc1]
+
+### Added
+
+- Add `#permanent_redirect` and `#temporary_redirect` helpers for 301 and 302 responses. (@cllns in #302)
+
+### Changed
+
+- **BREAKING:** `#redirect` now requires an explicit `code:` argument. Use `#permanent_redirect` or `#temporary_redirect` for the common cases, and pass `code:` to `#redirect` for less common codes (e.g. `303`, `307`, `308`). (@cllns in #302)
+- Upgrade mustermann to 3.1 and remove mustermann-contrib dependency. (@rkh in #300)
+- Require Ruby 3.3 or newer.
+
+### Fixed
+
+- Allow URL generation (via `#path`) to work with array variables. (@inouire in #304)
+
+[3.0.0.rc1]: http://github.com/hanami/hanami-router/compare/v2.3.1...v3.0.0.rc1
 
 ## [2.3.1] - 2025-12-17
 
