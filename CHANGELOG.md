@@ -7,6 +7,7 @@ Rack compatible HTTP router for Ruby.
 ### Added
 
 - `#permanent_redirect` and `#temporary_redirect` helpers for 301 and 302 responses. (@cllns in #283)
+- `Hanami::Router::App`, a minimal, fast framework for building small apps and HTTP APIs on top of the router, with block endpoints, scopes, helpers, and Rack middleware support. Migrated from the now-archived `hanami-api` gem. Load it with `require "hanami/router/app"`. (@cllns)
 
 ### Changed
 

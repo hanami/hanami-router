@@ -339,6 +339,133 @@ route.verb      # "POST"
 route.routable? # => false
 ```
 
+## Building apps with `Hanami::Router::App`
+
+`Hanami::Router::App` is a minimal, fast framework for building small apps and
+HTTP APIs directly on top of the router. It adds a class-level routing DSL,
+block endpoints with a rich response API, scoped Rack middleware, and helpers.
+It's a modern, cohesive alternative to micro-frameworks like Sinatra, and a
+natural stepping stone before reaching for the full [Hanami](https://hanakai.org/hanami)
+framework.
+
+It's loaded separately from the core router:
+
+```ruby
+# frozen_string_literal: true
+
+require "hanami/router/app"
+
+class App < Hanami::Router::App
+  get "/" do
+    "Hello, world"
+  end
+end
+
+run App.new
+```
+
+### Block endpoints
+
+A block passed to a route definition is a _block endpoint_. Its return value
+composes the Rack response:
+
+```ruby
+get "/string" do
+  "Hello, world"          # => [200, {}, ["Hello, world"]]
+end
+
+get "/status" do
+  418                     # => [418, {}, ["I'm a teapot"]]
+end
+
+get "/array" do
+  [201, "Created"]        # => [201, {}, ["Created"]]
+end
+
+get "/serialized" do
+  [418, {"X-Tea" => "White butterfly"}, "I'm a teapot"]
+end
+```
+
+Returning an `Enumerator` (anywhere a body is accepted) enables streamed
+responses when combined with `Rack::Chunked`.
+
+### Block context
+
+Within a block endpoint you have access to a rich API:
+
+- `env` — the Rack environment for the current request
+- `status` / `status(value)` — get or set the HTTP status
+- `headers` — the mutable response headers hash
+- `body` / `body(value)` — get or set the response body
+- `params` — params from path variables and body parsing
+- `halt(status, body = nil)` — immediately return with the given status
+- `redirect(url, status = 301)` — redirect and halt
+- `back` — the `HTTP_REFERER`, or `"/"`
+- `json(object, mime = "application/json")` — serialize a JSON response
+
+```ruby
+get "/user/:id" do
+  user = UserRepository.new.find(params[:id])
+  json(user)
+end
+```
+
+### Scopes
+
+Scopes prefix routes (and named routes):
+
+```ruby
+scope "api" do
+  scope "v1" do
+    get "/users", to: Actions::V1::Users::Index.new
+  end
+end
+
+# generates "/api/v1/users"
+```
+
+### Helpers
+
+`.helpers` adds methods to the block context, either inline or via a module:
+
+```ruby
+class App < Hanami::Router::App
+  helpers do
+    def redirect_to_root
+      redirect "/"
+    end
+  end
+
+  get "/legacy" do
+    redirect_to_root
+  end
+end
+```
+
+### Rack middleware
+
+Mount Rack middleware with `.use`. Middleware is inherited by nested scopes:
+
+```ruby
+class App < Hanami::Router::App
+  use ElapsedTime
+
+  scope "api" do
+    use ApiAuthentication
+  end
+end
+```
+
+### Testing
+
+Test an app by passing a Rack env to its `#call`:
+
+```ruby
+response = App.new.call({"PATH_INFO" => "/", "REQUEST_METHOD" => "GET"})
+response # => [200, {}, ["Hello, world"]]
+```
+
 ## Contributing
 
 1. Fork this repo to your account and clone it locally (`git clone git@github.com:your-pseudo/your-cloned-repo.git`)

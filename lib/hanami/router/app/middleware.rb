@@ -1,0 +1,64 @@
+# frozen_string_literal: true
+
+require "hanami/middleware/app"
+
+module Hanami
+  class Router
+    class App
+      # Hanami::Router::App middleware stack
+      #
+      # @since 2.4.0
+      # @api private
+      module Middleware
+        # Middleware stack
+        #
+        # @since 2.4.0
+        # @api private
+        class Stack
+          # @since 2.4.0
+          # @api private
+          def initialize(prefix)
+            @prefix = prefix
+            @stack = {}
+          end
+
+          # @since 2.4.0
+          # @api private
+          def use(path, middleware, *args, **kwargs, &blk)
+            @stack[path] ||= []
+            @stack[path].push([middleware, args, kwargs, blk])
+          end
+
+          # @since 2.4.0
+          # @api private
+          def to_hash
+            @stack.each_with_object({}) do |(path, _), result|
+              result[path] = stack_for(path)
+            end
+          end
+
+          # @since 2.4.0
+          # @api private
+          def finalize(app)
+            mapping = to_hash
+            return app if mapping.empty?
+
+            Hanami::Middleware::App.new(app, mapping)
+          end
+
+          private
+
+          # @since 2.4.0
+          # @api private
+          def stack_for(current_path)
+            @stack.each_with_object([]) do |(path, stack), result|
+              next unless current_path.start_with?(path)
+
+              result.push(stack)
+            end.flatten(1)
+          end
+        end
+      end
+    end
+  end
+end
