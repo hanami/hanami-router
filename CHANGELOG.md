@@ -18,7 +18,7 @@ Rack compatible HTTP router for Ruby.
 
 [Unreleased]: http://github.com/hanami/hanami-router/compare/v3.0.0.rc1...HEAD
 
-## [3.0.0.rc1]
+## [3.0.0.rc1] - 2026-06-16
 
 ### Added
 
