@@ -2,19 +2,10 @@
 
 module Hanami
   class Router
+    # Rack env key containing the request body as parsed by the body parser middleware. Signals that
+    # the body has already been parsed, so the router should not attempt to parse it again.
+    #
     # @api private
     ROUTER_PARSED_BODY = "router.parsed_body"
-
-    # @api private
-    CONTENT_TYPE = "CONTENT_TYPE"
-
-    # @api private
-    FORM_URLENCODED_MEDIA_TYPE = "application/x-www-form-urlencoded"
-
-    # @api private
-    FORM_URLENCODED_MEDIA_TYPE_PREFIX = "#{FORM_URLENCODED_MEDIA_TYPE};".freeze
-
-    # @api private
-    EMPTY_HASH = {}.freeze
   end
 end

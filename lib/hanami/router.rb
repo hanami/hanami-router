@@ -787,6 +787,9 @@ module Hanami
     # @api private
     EMPTY_STRING = ""
 
+    # @api private
+    EMPTY_HASH = {}.freeze
+
     # @since 2.0.0
     # @api private
     DEFAULT_RESOLVER = ->(_, to) { to }
@@ -838,6 +841,15 @@ module Hanami
     # @since 2.0.0
     # @api private
     PARAMS = "router.params"
+
+    # @api private
+    CONTENT_TYPE = "CONTENT_TYPE"
+
+    # @api private
+    FORM_URLENCODED_MEDIA_TYPE = "application/x-www-form-urlencoded"
+
+    # @api private
+    FORM_URLENCODED_MEDIA_TYPE_PREFIX = "#{FORM_URLENCODED_MEDIA_TYPE};".freeze
 
     # @since 2.0.0
     # @api private
