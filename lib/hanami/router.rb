@@ -113,9 +113,7 @@ module Hanami
         env[::Rack::RACK_INPUT] = Rack::RewindableInput.new(input)
       end
 
-      endpoint.call(
-        _params(env, params)
-      ).to_a
+      endpoint.call(_env_with_params(env, params)).to_a
     end
 
     # Defines a named root route (a GET route for "/")
@@ -684,7 +682,7 @@ module Hanami
       env = env_for(env, params, options)
       endpoint, params = lookup(env)
 
-      RecognizedRoute.new(endpoint, _params(env, params))
+      RecognizedRoute.new(endpoint, _env_with_params(env, params))
     end
 
     # @since 2.0.0
@@ -1034,9 +1032,8 @@ module Hanami
       Redirect.new(destination, code, ->(*) { [code, {HTTP_HEADER_LOCATION => destination}, [body]] })
     end
 
-    # @since 2.0.0
     # @api private
-    def _params(env, params)
+    def _env_with_params(env, params)
       params ||= {}
       env[PARAMS] ||= {}
 
