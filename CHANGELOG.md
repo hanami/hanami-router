@@ -14,6 +14,8 @@ Rack compatible HTTP router for Ruby.
 
 ### Fixed
 
+- Only parse the request body into params when the content type is `application/x-www-form-urlencoded`. Previously, with no body parser middleware in use, posting a multipart upload (or other non-form body) could raise `Rack::QueryParser::InvalidParameterError`. (@cllns and @timriley in #305)
+
 ### Security
 
 [Unreleased]: http://github.com/hanami/hanami-router/compare/v3.0.0.rc1...HEAD

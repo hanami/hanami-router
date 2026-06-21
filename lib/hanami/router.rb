@@ -113,9 +113,7 @@ module Hanami
         env[::Rack::RACK_INPUT] = Rack::RewindableInput.new(input)
       end
 
-      endpoint.call(
-        _params(env, params)
-      ).to_a
+      endpoint.call(_env_with_params(env, params)).to_a
     end
 
     # Defines a named root route (a GET route for "/")
@@ -684,7 +682,7 @@ module Hanami
       env = env_for(env, params, options)
       endpoint, params = lookup(env)
 
-      RecognizedRoute.new(endpoint, _params(env, params))
+      RecognizedRoute.new(endpoint, _env_with_params(env, params))
     end
 
     # @since 2.0.0
@@ -789,6 +787,9 @@ module Hanami
     # @api private
     EMPTY_STRING = ""
 
+    # @api private
+    EMPTY_HASH = {}.freeze
+
     # @since 2.0.0
     # @api private
     DEFAULT_RESOLVER = ->(_, to) { to }
@@ -840,6 +841,15 @@ module Hanami
     # @since 2.0.0
     # @api private
     PARAMS = "router.params"
+
+    # @api private
+    CONTENT_TYPE = "CONTENT_TYPE"
+
+    # @api private
+    FORM_URLENCODED_MEDIA_TYPE = "application/x-www-form-urlencoded"
+
+    # @api private
+    FORM_URLENCODED_MEDIA_TYPE_PREFIX = "#{FORM_URLENCODED_MEDIA_TYPE};".freeze
 
     # @since 2.0.0
     # @api private
@@ -1034,22 +1044,39 @@ module Hanami
       Redirect.new(destination, code, ->(*) { [code, {HTTP_HEADER_LOCATION => destination}, [body]] })
     end
 
-    # @since 2.0.0
     # @api private
-    def _params(env, params)
+    def _env_with_params(env, params)
       params ||= {}
       env[PARAMS] ||= {}
 
-      if !env.key?(ROUTER_PARSED_BODY) && (input = env[::Rack::RACK_INPUT]) and input.rewind
-        env[PARAMS].merge!(::Rack::Utils.parse_nested_query(input.read))
-        input.rewind
-      end
-
+      env[PARAMS].merge!(_form_urlencoded_body(env))
       env[PARAMS].merge!(::Rack::Utils.parse_nested_query(env[::Rack::QUERY_STRING]))
       env[PARAMS].merge!(params)
       env[PARAMS] = Params.deep_symbolize(env[PARAMS])
 
       env
+    end
+
+    # @api private
+    def _form_urlencoded_body(env)
+      return EMPTY_HASH if env.key?(ROUTER_PARSED_BODY)
+      return EMPTY_HASH unless _form_urlencoded?(env)
+      return EMPTY_HASH unless (input = env[::Rack::RACK_INPUT])
+
+      input.rewind
+      body = ::Rack::Utils.parse_nested_query(input.read)
+      input.rewind # leave the stream readable for downstream consumers
+      body
+    end
+
+    # @api private
+    def _form_urlencoded?(env)
+      content_type = env[CONTENT_TYPE]
+      return false unless content_type
+
+      content_type = content_type.downcase
+      content_type == FORM_URLENCODED_MEDIA_TYPE ||
+        content_type.start_with?(FORM_URLENCODED_MEDIA_TYPE_PREFIX)
     end
 
     # @since 2.0.0
