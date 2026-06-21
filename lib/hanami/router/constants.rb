@@ -13,5 +13,8 @@ module Hanami
 
     # @api private
     FORM_URLENCODED_MEDIA_TYPE_PREFIX = "#{FORM_URLENCODED_MEDIA_TYPE};".freeze
+
+    # @api private
+    EMPTY_HASH = {}.freeze
   end
 end
