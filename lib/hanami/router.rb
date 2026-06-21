@@ -1048,7 +1048,6 @@ module Hanami
       env
     end
 
-    # @since x.x.x
     # @api private
     def _merge_form_urlencoded_body!(env)
       return if env.key?(ROUTER_PARSED_BODY)
@@ -1060,14 +1059,14 @@ module Hanami
       input.rewind # leave the stream readable for downstream consumers
     end
 
-    # @since x.x.x
     # @api private
     def _form_urlencoded?(env)
       content_type = env[CONTENT_TYPE]
       return false unless content_type
 
+      content_type = content_type.downcase
       content_type == FORM_URLENCODED_MEDIA_TYPE ||
-        content_type.start_with?("#{FORM_URLENCODED_MEDIA_TYPE};")
+        content_type.start_with?(FORM_URLENCODED_MEDIA_TYPE_PREFIX)
     end
 
     # @since 2.0.0

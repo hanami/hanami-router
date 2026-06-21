@@ -3,15 +3,15 @@
 module Hanami
   class Router
     # @api private
-    # @since 2.0.0
     ROUTER_PARSED_BODY = "router.parsed_body"
 
     # @api private
-    # @since x.x.x
     CONTENT_TYPE = "CONTENT_TYPE"
 
     # @api private
-    # @since x.x.x
     FORM_URLENCODED_MEDIA_TYPE = "application/x-www-form-urlencoded"
+
+    # @api private
+    FORM_URLENCODED_MEDIA_TYPE_PREFIX = "#{FORM_URLENCODED_MEDIA_TYPE};".freeze
   end
 end
