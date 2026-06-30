@@ -775,7 +775,6 @@ module Hanami
     # @api private
     PREFIXED_NAME_SEPARATOR = "_"
 
-    # @since x.x.x
     # @api private
     UNDERSCORED_NAME_REGEXP = /[-+~.]/
 

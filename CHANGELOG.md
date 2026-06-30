@@ -1,6 +1,9 @@
-# Hanami::Router
+# Changelog
 
-Rack compatible HTTP router for Ruby.
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Break Versioning](https://www.taoensso.com/break-versioning).
 
 ## [Unreleased]
 
@@ -14,11 +17,28 @@ Rack compatible HTTP router for Ruby.
 
 ### Fixed
 
-- Only parse the request body into params when the content type is `application/x-www-form-urlencoded`. Previously, with no body parser middleware in use, posting a multipart upload (or other non-form body) could raise `Rack::QueryParser::InvalidParameterError`. (@cllns and @timriley in #305)
-
 ### Security
 
-[Unreleased]: http://github.com/hanami/hanami-router/compare/v3.0.0.rc1...HEAD
+[Unreleased]: http://github.com/hanami/hanami-router/compare/v3.0.0...HEAD
+
+## [3.0.0] - 2026-06-30
+
+### Added
+
+- Add `#permanent_redirect` and `#temporary_redirect` helpers for 301 and 302 responses. (@cllns in #302)
+
+### Changed
+
+- **BREAKING:** `#redirect` now requires an explicit `code:` argument. Use `#permanent_redirect` or `#temporary_redirect` for the common cases, and pass `code:` to `#redirect` for less common codes (e.g. `303`, `307`, `308`). (@cllns in #302)
+- Upgrade mustermann to 3.1 and remove mustermann-contrib dependency. (@rkh in #300)
+- Require Ruby 3.3 or newer.
+
+### Fixed
+
+- Only parse the request body into params when the content type is `application/x-www-form-urlencoded`. Previously, with no body parser middleware in use, posting a multipart upload (or other non-form body) could raise `Rack::QueryParser::InvalidParameterError`. (@cllns and @timriley in #305)
+- Allow URL generation (via `#path`) to work with array variables. (@inouire in #304)
+
+[3.0.0]: http://github.com/hanami/hanami-router/compare/v2.3.1...v3.0.0
 
 ## [3.0.0.rc1] - 2026-06-16
 
