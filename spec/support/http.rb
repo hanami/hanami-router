@@ -3,8 +3,13 @@
 module RSpec
   module Support
     module HTTP
-      MOUNTABLE_VERBS = %w[get post delete put patch trace options link unlink].freeze
-      VERBS =           MOUNTABLE_VERBS + %w[head].freeze
+      if defined?(::Rack::QUERY)
+        MOUNTABLE_VERBS = %w[get post delete put patch trace options link unlink query].freeze
+      else
+        MOUNTABLE_VERBS = %w[get post delete put patch trace options link unlink].freeze
+      end
+
+      VERBS = MOUNTABLE_VERBS + %w[head].freeze
 
       def self.mountable_verbs
         MOUNTABLE_VERBS

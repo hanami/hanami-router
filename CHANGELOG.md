@@ -9,6 +9,8 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Added
 
+- Support for HTTP QUERY method (@katafrakt in #307)
+
 ### Changed
 
 ### Deprecated
