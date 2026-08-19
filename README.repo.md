@@ -332,7 +332,7 @@ route.routable? # => false
 1. Fork this repo to your account and clone it locally (`git clone git@github.com:your-pseudo/your-cloned-repo.git`)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Install the dependencies (`bundle install`)
-4. Run tests, they should all pass (`./script/ci`)
+4. Run tests, they should all pass (`rake spec`)
 5. Make your changes & check that the tests still pass. Add some test cases if needed.
 6. Commit your changes (`git commit -am 'Add some feature'`)
 7. Push to the branch (`git push origin my-new-feature`)
