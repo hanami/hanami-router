@@ -16,7 +16,7 @@ RSpec.describe Hanami::Router::Formatter::HumanFriendly do
           Hanami::Router::Route.new(http_method: "GET", path: "/resources/:id", to: "resource#show", as: :resource, constraints: {id: /\d+/})
         ]
 
-        expected = "GET     /resources/:id                resource#show                 as :resource        (id: /\\d+/)                             "
+        expected = "GET     /resources/:id                     resource#show                      as :resource             (id: /\\d+/)                             "
         expect(subject.call(routes)).to eq(expected)
       end
 
