@@ -71,7 +71,7 @@ RSpec.describe Hanami::Middleware::BodyParser do
       end
 
       describe "with malformed json" do
-        let(:body) {  %({"hanami":"ok" "attribute":"ok"}) }
+        let(:body) { %({"hanami":"ok" "attribute":"ok"}) }
 
         it "raises an exception" do
           expect { env }.to raise_error(Hanami::Middleware::BodyParser::BodyParsingError)
