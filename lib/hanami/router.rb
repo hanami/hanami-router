@@ -224,6 +224,22 @@ module Hanami
       add_route(::Rack::HEAD, path, to, as, constraints, &blk)
     end
 
+    if defined?(::Rack::QUERY)
+      # Defines a route that accepts QUERY requests for the given path.
+      #
+      # @param path [String] the relative URL to be matched
+      # @param to [#call] the Rack endpoint
+      # @param as [Symbol, Array<Symbol>] a unique name for the route, or a ["prefix", "name"] array,
+      #   to add a prefix to the name when nested within scopes.
+      # @param constraints [Hash] a set of constraints for path variables
+      # @param blk [Proc] the anonymous proc to be used as endpoint for the route
+      #
+      # @since 3.1.0
+      def query(path, to: nil, as: nil, **constraints, &blk)
+        add_route(::Rack::QUERY, path, to, as, constraints, &blk)
+      end
+    end
+
     # Defines a route that accepts POST requests for the given path.
     #
     # @param path [String] the relative URL to be matched

@@ -226,7 +226,13 @@ end # Api
 
 module Backend
   class App
-    VERBS = %w[GET POST DELETE PUT PATCH TRACE OPTIONS LINK UNLINK].freeze
+    VERBS =
+      if defined?(::Rack::QUERY)
+        %w[GET POST DELETE PUT PATCH TRACE OPTIONS LINK UNLINK QUERY].freeze
+      else
+        %w[GET POST DELETE PUT PATCH TRACE OPTIONS LINK UNLINK].freeze
+      end
+
     def self.call(env)
       if VERBS.include? env["REQUEST_METHOD"]
         [200, {}, ["home"]]

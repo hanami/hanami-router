@@ -5,7 +5,7 @@ name:
 github_org: hanami
 ci:
   matrix:
-    rack: ["~> 2.0", "~> 3.0"]
+    rack: ["~> 2.0", "~> 3.0", "head"]
 gemspec:
   authors: ["Hanakai team"]
   email: ["info@hanakai.org"]

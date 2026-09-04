@@ -12,7 +12,9 @@ unless ENV["CI"]
   gem "yard-junk"
 end
 
-if ENV["RACK_MATRIX_VALUE"]
+if ENV["RACK_MATRIX_VALUE"] == "head"
+  gem "rack", github: "rack/rack"
+elsif ENV["RACK_MATRIX_VALUE"]
   gem "rack", ENV["RACK_MATRIX_VALUE"]
 end
 
