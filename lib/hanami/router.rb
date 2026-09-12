@@ -1020,28 +1020,6 @@ module Hanami
       name.gsub(UNDERSCORED_NAME_REGEXP, "_").to_sym
     end
 
-    # Returns a new instance of Hanami::Router with the modified options.
-    #
-    # @return [Hanami::Route] a new instance of Hanami::Router
-    #
-    # @see Hanami::Router#initialize
-    #
-    # @since 2.0.0
-    # @api private
-    def with(**new_options, &blk)
-      options = {
-        base_url: @base_url,
-        prefix: @path_prefix.to_s,
-        resolver: @resolver,
-        not_allowed: @not_allowed,
-        not_found: @not_found,
-        block_context: @block_context,
-        inspector: @inspector
-      }
-
-      self.class.new(**options.merge(new_options), &blk || @blk)
-    end
-
     # @since 2.0.0
     # @api private
     def _redirect(to, code)
