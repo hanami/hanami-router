@@ -2,6 +2,7 @@
 
 require "hanami/router/errors"
 require "mustermann/error"
+require_relative "path_template"
 require_relative "prefix"
 
 module Hanami
@@ -13,6 +14,7 @@ module Hanami
       def initialize(base_url)
         @base_url = URI(base_url)
         @named = {}
+        @templates = {}
         prefix = @base_url.path
         prefix = DEFAULT_PREFIX if prefix.empty?
         @prefix = Prefix.new(prefix)
@@ -21,10 +23,15 @@ module Hanami
       # @api private
       def add(name, segment)
         @named[name] = segment
+        @templates[name] = PathTemplate.fabricate(segment)
       end
 
       # @api private
       def path(name, variables = {})
+        template = @templates[name.to_sym]
+        expanded_path = template&.expand(variables)
+        return expanded_path if expanded_path
+
         scalar_vars = variables.reject { |_, value| value.is_a?(Array) }
         array_vars = array_query_vars(variables)
 

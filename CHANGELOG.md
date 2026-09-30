@@ -13,6 +13,8 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Changed
 
+- Generate paths for routes without constrained variables without Mustermann, making `#path` and `#url` around 20 times faster for them. (@parndt)
+
 ### Deprecated
 
 ### Removed
