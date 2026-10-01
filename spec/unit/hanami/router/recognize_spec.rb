@@ -233,7 +233,7 @@ RSpec.describe Hanami::Router do
       end
 
       it "returns not routeable result when cannot recognize" do
-        route = router.recognize("/", {}, method: :post)
+        route = router.recognize("/", method: :post)
 
         expect(route.routable?).to be(false)
         expect(route.redirect?).to be(false)
@@ -260,7 +260,7 @@ RSpec.describe Hanami::Router do
 
       it "raises error if #call is invoked for not routeable object when cannot recognize" do
         env   = Rack::MockRequest.env_for("/", method: :post)
-        route = router.recognize("/", {}, method: :post)
+        route = router.recognize("/", method: :post)
 
         expect { route.call(env) }.to raise_error(Hanami::Router::NotRoutableEndpointError, "Cannot find routable endpoint for: POST /")
       end
@@ -298,7 +298,7 @@ RSpec.describe Hanami::Router do
       end
 
       it "recognizes procs with params" do
-        route = router.recognize(:params, id: 1)
+        route = router.recognize(:params, params: {id: 1})
 
         expect(route.routable?).to be(true)
         expect(route.redirect?).to be(false)
@@ -354,7 +354,7 @@ RSpec.describe Hanami::Router do
       end
 
       it "returns not routeable result when cannot recognize" do
-        route = router.recognize(:home, {}, method: :post)
+        route = router.recognize(:home, method: :post)
 
         expect(route.routable?).to be(false)
         expect(route.redirect?).to be(false)
@@ -381,9 +381,57 @@ RSpec.describe Hanami::Router do
 
       it "raises error if #call is invoked for not routeable object when cannot recognize" do
         env   = Rack::MockRequest.env_for("/", method: :post)
-        route = router.recognize(:home, {}, method: :post)
+        route = router.recognize(:home, method: :post)
 
         expect { route.call(env) }.to raise_error(Hanami::Router::NotRoutableEndpointError, "Cannot find routable endpoint for: POST /")
+      end
+    end
+
+    # See: https://github.com/hanami/hanami-router/issues/271
+    context "when forwarding method: kwarg to env_for" do
+      let(:router) do
+        Hanami::Router.new do
+          get    "/images",      to: ->(*) { [200, {}, ["INDEX"]] }
+          post   "/images",      to: ->(*) { [200, {}, ["UPLOAD"]] }
+          get    "/images/:id",  to: ->(*) { [200, {}, ["SHOW"]] }
+          post   "/images/bulk", to: ->(*) { [200, {}, ["BULK"]] }
+          put    "/images/:id",  to: ->(*) { [200, {}, ["REPLACE"]] }, as: :replace
+        end
+      end
+
+      it "recognizes a POST route by path" do
+        route = router.recognize("/images/bulk", method: "POST")
+
+        expect(route.routable?).to be(true)
+        expect(route.verb).to eq("POST")
+        expect(route.path).to eq("/images/bulk")
+        expect(route.params).to eq({})
+      end
+
+      it "accepts a symbol method value" do
+        route = router.recognize("/images", method: :post)
+
+        expect(route.routable?).to be(true)
+        expect(route.verb).to eq("POST")
+        expect(route.path).to eq("/images")
+      end
+
+      it "recognizes a PUT route with path variables" do
+        route = router.recognize("/images/1", method: :put)
+
+        expect(route.routable?).to be(true)
+        expect(route.verb).to eq("PUT")
+        expect(route.path).to eq("/images/1")
+        expect(route.params).to eq(id: "1")
+      end
+
+      it "recognizes a named route with params and method" do
+        route = router.recognize(:replace, params: {id: 1}, method: :put)
+
+        expect(route.routable?).to be(true)
+        expect(route.verb).to eq("PUT")
+        expect(route.path).to eq("/images/1")
+        expect(route.params).to eq(id: "1")
       end
     end
   end
