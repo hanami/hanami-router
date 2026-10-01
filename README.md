@@ -2,7 +2,7 @@
 
 [actions]: https://github.com/hanami/hanami-router/actions
 [chat]: https://discord.gg/naQApPAsZB
-[forum]: https://discourse.hanamirb.org
+[forum]: https://discourse.hanakai.org
 [rubygem]: https://rubygems.org/gems/hanami-router
 
 # Hanami Router [![Gem Version](https://badge.fury.io/rb/hanami-router.svg)][rubygem] [![CI Status](https://github.com/hanami/hanami-router/workflows/CI/badge.svg)][actions]
