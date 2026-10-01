@@ -965,7 +965,7 @@ module Hanami
     # @since 2.0.0
     # @api private
     def add_named_route(path, name, constraints)
-      @url_helpers.add(name, Segment.fabricate(path, **constraints))
+      @url_helpers.add(name, path, constraints)
     end
 
     # @since 2.0.0

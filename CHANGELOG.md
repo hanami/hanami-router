@@ -13,7 +13,7 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Changed
 
-- Generate paths for routes without constrained variables without Mustermann, making `#path` and `#url` around 20 times faster for them. (@parndt)
+- Generate most paths without Mustermann, making `#path` and `#url` around 10 times faster, and routers with many named routes quicker to build. (@parndt in #311)
 
 ### Deprecated
 
