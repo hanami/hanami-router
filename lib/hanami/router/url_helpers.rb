@@ -2,6 +2,7 @@
 
 require "hanami/router/errors"
 require "mustermann/error"
+require_relative "expander"
 require_relative "prefix"
 
 module Hanami
@@ -19,23 +20,15 @@ module Hanami
       end
 
       # @api private
-      def add(name, segment)
-        @named[name] = segment
+      def add(name, path, constraints)
+        @named[name] = Expander.fabricate(path, constraints)
       end
 
       # @api private
       def path(name, variables = {})
-        scalar_vars = variables.reject { |_, value| value.is_a?(Array) }
-        array_vars = array_query_vars(variables)
-
-        expanded_path = @named
+        @named
           .fetch(name.to_sym) { raise MissingRouteError.new(name) }
-          .expand(:append, scalar_vars)
-
-        return expanded_path if array_vars.empty?
-
-        join_char = expanded_path.include?("?") ? "&" : "?"
-        "#{expanded_path}#{join_char}#{Rack::Utils.build_query(array_vars)}"
+          .expand(variables)
       rescue Mustermann::ExpandError => exception
         raise InvalidRouteExpansionError.new(name, exception.message)
       end
@@ -43,14 +36,6 @@ module Hanami
       # @api private
       def url(name, variables = {})
         @base_url + @prefix.join(path(name, variables)).to_s
-      end
-
-      private
-
-      def array_query_vars(variables = {})
-        variables
-          .select { |_, value| value.is_a?(Array) }
-          .to_h { |key, value| ["#{key}[]", value] }
       end
     end
   end
