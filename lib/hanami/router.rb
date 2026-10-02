@@ -37,6 +37,28 @@ module Hanami
     # @since 2.0.0
     attr_reader :inspector
 
+    # Returns the routes defined on this router, in the order they were defined.
+    #
+    # Every route is recorded, whether or not an {#inspector} was given: this is what backs
+    # runtime introspection, such as listing the available routes on a "not found" error page.
+    #
+    # Routes added within a {#scope} are recorded here too, since a scope defines its routes on
+    # the same router.
+    #
+    # @return [Array<Hanami::Router::Route>]
+    #
+    # @example
+    #   router = Hanami::Router.new do
+    #     get "/books/:id", to: "books.show", as: :book
+    #   end
+    #
+    #   router.routes.map { |route| "#{route.http_method} #{route.path}" }
+    #   # => ["GET /books/:id", "HEAD /books/:id"]
+    #
+    # @since 3.1.0
+    # @api public
+    attr_reader :routes
+
     # Returns the given block as it is.
     #
     # @param blk [Proc] a set of route definitions
@@ -88,6 +110,7 @@ module Hanami
       @fixed = {}
       @variable = {}
       @globs_and_mounts = []
+      @routes = []
       @blk = blk
       @inspector = inspector
       instance_eval(&blk) if blk
@@ -519,9 +542,7 @@ module Hanami
       prefix = Segment.fabricate(path, **constraints)
 
       @globs_and_mounts << MountedPath.new(prefix, @resolver.call(path, app))
-      if inspect?
-        @inspector.add_route(Route.new(http_method: "*", path: at, to: app, constraints: constraints))
-      end
+      record_route(Route.new(http_method: "*", path: at, to: app, constraints: constraints))
     end
 
     # Generate an relative URL for a specified named route.
@@ -926,11 +947,9 @@ module Hanami
         add_named_route(path, as, constraints)
       end
 
-      if inspect?
-        @inspector.add_route(
-          Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
-        )
-      end
+      record_route(
+        Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
+      )
     end
 
     # @since 2.0.0
@@ -966,6 +985,17 @@ module Hanami
     # @api private
     def add_named_route(path, name, constraints)
       @url_helpers.add(name, Segment.fabricate(path, **constraints))
+    end
+
+    # Keeps the route for {#routes}, and hands it to the {#inspector}, if any.
+    #
+    # @since 3.1.0
+    # @api private
+    def record_route(route)
+      @routes << route
+      @inspector.add_route(route) if inspect?
+
+      route
     end
 
     # @since 2.0.0
