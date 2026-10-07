@@ -923,7 +923,7 @@ module Hanami
 
       if as
         as = prefixed_name(as)
-        add_named_route(path, as, constraints)
+        add_named_route(path, as)
       end
 
       if inspect?
@@ -964,8 +964,8 @@ module Hanami
 
     # @since 2.0.0
     # @api private
-    def add_named_route(path, name, constraints)
-      @url_helpers.add(name, path, constraints)
+    def add_named_route(path, name)
+      @url_helpers.add(name, path)
     end
 
     # @since 2.0.0

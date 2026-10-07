@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require_relative "mustermann_expander"
-require_relative "simple_expander"
+require_relative "expander/mustermann_expander"
+require_relative "expander/simple_expander"
 
 module Hanami
   class Router
     # Builds the expander that generates a named route's paths
+    #
+    # Constraints aren't checked when expanding, so they play no part here.
     #
     # @since 3.1.0
     # @api private
@@ -14,14 +16,13 @@ module Hanami
       # one for the rest.
       #
       # @param path [String] the route's path
-      # @param constraints [Hash] the route's constraints for its variables
       #
       # @return [SimpleExpander, MustermannExpander]
       #
       # @since 3.1.0
       # @api private
-      def self.fabricate(path, constraints)
-        SimpleExpander.fabricate(path, constraints) || MustermannExpander.new(path, constraints)
+      def self.fabricate(path)
+        SimpleExpander.fabricate(path) || MustermannExpander.new(path)
       end
     end
   end

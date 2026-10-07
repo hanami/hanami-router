@@ -20,8 +20,8 @@ module Hanami
       end
 
       # @api private
-      def add(name, path, constraints)
-        @named[name] = Expander.fabricate(path, constraints)
+      def add(name, path)
+        @named[name] = Expander.fabricate(path)
       end
 
       # @api private
