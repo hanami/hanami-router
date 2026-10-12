@@ -19,6 +19,8 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Fixed
 
+- Trie#find keeps every path it looks up (@aaronmallen in #312)
+
 ### Security
 
 [Unreleased]: http://github.com/hanami/hanami-router/compare/v3.0.0...HEAD
