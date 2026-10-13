@@ -13,6 +13,8 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Changed
 
+- Generate most paths without Mustermann, making `#path` and `#url` around 10 times faster, and routers with many named routes quicker to build. (@parndt in #311)
+
 ### Deprecated
 
 ### Removed
