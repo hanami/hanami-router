@@ -17,7 +17,6 @@ module Hanami
       # @since 2.0.0
       def initialize
         @root = Node.new
-        @segments_map = {}
       end
 
       # @api private
@@ -54,12 +53,8 @@ module Hanami
       # @api private
       # @since 2.2.0
       def segments_from(path)
-        if @segments_map[path]
-          @segments_map[path]
-        else
-          _, *segments = path.split(SEGMENT_SEPARATOR)
-          @segments_map[path] = segments
-        end
+        _, *segments = path.split(SEGMENT_SEPARATOR)
+        segments
       end
     end
   end
