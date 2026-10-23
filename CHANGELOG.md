@@ -16,6 +16,7 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 ### Changed
 
 - Generate most paths without Mustermann, making `#path` and `#url` around 10 times faster, and routers with many named routes quicker to build. (@parndt in #311)
+- Raise `FrozenError` when adding a route to, or mounting an app on, a frozen router. Previously, the route was added to the routing tables and served requests, even though the router was frozen. (@timriley in #306)
 
 ### Deprecated
 

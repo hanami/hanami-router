@@ -546,6 +546,8 @@ module Hanami
     #     mount MyRackApp.new, at: "/foo"
     #   end
     def mount(app, at:, **constraints)
+      raise_if_frozen
+
       path = prefixed_path(at)
       prefix = Segment.fabricate(path, **constraints)
 
@@ -939,6 +941,8 @@ module Hanami
     # @since 2.0.0
     # @api private
     def add_route(http_method, path, to, as, constraints, &blk)
+      raise_if_frozen
+
       path = prefixed_path(path)
       endpoint = resolve_endpoint(path, to, blk)
 
@@ -1003,6 +1007,19 @@ module Hanami
     # @api private
     def globbed?(path)
       ROUTE_GLOBBED_MATCHER.match?(path)
+    end
+
+    # Raises before a route is added to a frozen router.
+    #
+    # Freezing the router does not freeze its routing tables, so without this check a route would
+    # be added to them, and so start serving requests, before {#routes} raised on being changed.
+    #
+    # @raise [FrozenError] if the router is frozen
+    #
+    # @since 3.1.0
+    # @api private
+    def raise_if_frozen
+      raise FrozenError.new("can't modify frozen #{self.class}", receiver: self) if frozen?
     end
 
     # @since 2.0.0
