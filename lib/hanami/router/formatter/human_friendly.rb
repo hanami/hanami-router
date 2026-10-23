@@ -2,11 +2,14 @@
 
 module Hanami
   class Router
-    # Renders a human friendly representation of the routes
-    #
-    # @api private
-    # @since 2.0.0
     module Formatter
+      # Renders a human friendly representation of the routes, skipping HEAD routes.
+      #
+      # @example
+      #   Hanami::Router::Formatter::HumanFriendly.new.call(router.routes)
+      #
+      # @api public
+      # @since 2.0.0
       class HumanFriendly
         # @api private
         # @since 2.0.0
@@ -33,7 +36,11 @@ module Hanami
         EXTRA_LARGE_STRING_JUSTIFY_AMOUNT = 40
         private_constant :EXTRA_LARGE_STRING_JUSTIFY_AMOUNT
 
-        # @api private
+        # @param routes [Array<Hanami::Router::Route>]
+        #
+        # @return [String]
+        #
+        # @api public
         # @since 2.0.0
         def call(routes)
           routes.filter_map(&method(:format_route_unless_head)).join(NEW_LINE)

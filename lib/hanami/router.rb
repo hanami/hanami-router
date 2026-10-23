@@ -23,6 +23,7 @@ module Hanami
     require "hanami/router/globbed_path"
     require "hanami/router/mounted_path"
     require "hanami/router/rack_utils"
+    require "hanami/router/formatter"
 
     # URL helpers for other Hanami integrations
     #
@@ -30,20 +31,15 @@ module Hanami
     # @since 2.0.0
     attr_reader :url_helpers
 
-    # Routes inspector
-    #
-    # @return [Hanami::Router::Inspector]
-    #
-    # @since 2.0.0
-    attr_reader :inspector
-
     # Returns the routes defined on this router, in the order they were defined.
     #
-    # Every route is recorded, whether or not an {#inspector} was given: this is what backs
-    # runtime introspection, such as listing the available routes on a "not found" error page.
+    # Each GET route is followed by the HEAD route the router generates for it. Routes defined
+    # within a {#scope}, or under a router prefix, have their full prefixed path.
     #
-    # Routes added within a {#scope} are recorded here too, since a scope defines its routes on
-    # the same router.
+    # The returned array is frozen. Once the router is frozen, every call returns the same array.
+    #
+    # To render the routes, pass them to a formatter, such as {Formatter::HumanFriendly} or
+    # {Formatter::CSV}.
     #
     # @return [Array<Hanami::Router::Route>]
     #
@@ -57,7 +53,9 @@ module Hanami
     #
     # @since 3.1.0
     # @api public
-    attr_reader :routes
+    def routes
+      @routes.frozen? ? @routes : @routes.dup.freeze
+    end
 
     # Returns the given block as it is.
     #
@@ -97,7 +95,7 @@ module Hanami
     #   Hanami::Router.new do
     #     get "/", to: ->(*) { [200, {}, ["OK"]] }
     #   end
-    def initialize(base_url: DEFAULT_BASE_URL, prefix: DEFAULT_PREFIX, resolver: DEFAULT_RESOLVER, not_allowed: NOT_ALLOWED, not_found: NOT_FOUND, block_context: nil, inspector: nil, &blk) # rubocop:disable Layout/LineLength
+    def initialize(base_url: DEFAULT_BASE_URL, prefix: DEFAULT_PREFIX, resolver: DEFAULT_RESOLVER, not_allowed: NOT_ALLOWED, not_found: NOT_FOUND, block_context: nil, &blk) # rubocop:disable Layout/LineLength
       # TODO: verify if Prefix can handle both name and path prefix
       @path_prefix = Prefix.new(prefix)
       @name_prefix = Prefix.new("")
@@ -112,8 +110,18 @@ module Hanami
       @globs_and_mounts = []
       @routes = []
       @blk = blk
-      @inspector = inspector
       instance_eval(&blk) if blk
+    end
+
+    # Freezes the router, along with its {#routes}.
+    #
+    # @return [self]
+    #
+    # @since 2.0.0
+    # @api public
+    def freeze
+      @routes.freeze
+      super
     end
 
     # Resolve the given Rack env to a registered endpoint and invokes it.
@@ -542,7 +550,7 @@ module Hanami
       prefix = Segment.fabricate(path, **constraints)
 
       @globs_and_mounts << MountedPath.new(prefix, @resolver.call(path, app))
-      record_route(Route.new(http_method: "*", path: at, to: app, constraints: constraints))
+      @routes << Route.new(http_method: "*", path:, to: app, constraints:)
     end
 
     # Generate an relative URL for a specified named route.
@@ -947,9 +955,7 @@ module Hanami
         add_named_route(path, as)
       end
 
-      record_route(
-        Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
-      )
+      @routes << Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
     end
 
     # @since 2.0.0
@@ -987,17 +993,6 @@ module Hanami
       @url_helpers.add(name, path)
     end
 
-    # Keeps the route for {#routes}, and hands it to the {#inspector}, if any.
-    #
-    # @since 3.1.0
-    # @api private
-    def record_route(route)
-      @routes << route
-      @inspector.add_route(route) if inspect?
-
-      route
-    end
-
     # @since 2.0.0
     # @api private
     def variable?(path)
@@ -1008,12 +1003,6 @@ module Hanami
     # @api private
     def globbed?(path)
       ROUTE_GLOBBED_MATCHER.match?(path)
-    end
-
-    # @since 2.0.0
-    # @api private
-    def inspect?
-      !@inspector.nil?
     end
 
     # @since 2.0.0

@@ -1,10 +1,8 @@
 # frozen_string_literal: true
 
-require "hanami/router/inspector"
-
 RSpec.describe Hanami::Router do
   describe "#routes" do
-    it "records every route, without an inspector" do
+    it "records every route" do
       router = described_class.new do
         get "/books", to: "books.index", as: :books
         post "/books", to: "books.create"
@@ -71,6 +69,16 @@ RSpec.describe Hanami::Router do
       expect(route.to).to be(app)
     end
 
+    it "records mounted apps with their prefixed path" do
+      router = described_class.new(prefix: "/admin") do
+        scope "v1" do
+          mount ->(*) { [200, {}, ["OK"]] }, at: "/api"
+        end
+      end
+
+      expect(router.routes.first.path).to eq("/admin/v1/api")
+    end
+
     it "records redirects" do
       router = described_class.new do
         redirect "/old", to: "/new", code: 301
@@ -92,15 +100,32 @@ RSpec.describe Hanami::Router do
       expect(route.inspect_to).to eq("(block)")
     end
 
-    it "records the same routes given to an inspector" do
-      inspector = Hanami::Router::Inspector.new(formatter: ->(routes) { routes })
-
-      router = described_class.new(inspector: inspector) do
+    it "is frozen, and leaves the router's own routes untouched" do
+      router = described_class.new do
         get "/books", to: "books.index"
-        mount ->(*) { [200, {}, ["OK"]] }, at: "/api"
       end
 
-      expect(router.routes).to eq(inspector.call)
+      expect(router.routes).to be_frozen
+      expect { router.routes.clear }.to raise_error(FrozenError)
+      expect(router.routes.length).to eq(2)
+    end
+
+    it "includes routes added after the router was built" do
+      router = described_class.new
+      before = router.routes
+
+      router.get "/books", to: "books.index"
+
+      expect(before).to eq([])
+      expect(router.routes.length).to eq(2)
+    end
+
+    it "returns the same array every time once the router is frozen" do
+      router = described_class.new do
+        get "/books", to: "books.index"
+      end.freeze
+
+      expect(router.routes).to be(router.routes)
     end
   end
 end
