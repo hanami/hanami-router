@@ -63,12 +63,13 @@ module Hanami
 
       # @api private
       # @since 2.0.0
-      def initialize(http_method:, path:, to:, as: nil, constraints: {}, blk: nil)
+      def initialize(http_method:, path:, to:, as: nil, constraints: Router::EMPTY_HASH, blk: nil)
         @http_method = http_method
         @path = path
         @to = to
         @as = as
-        @constraints = constraints
+        # Most routes have no constraints. Share one empty hash rather than keep one per route.
+        @constraints = constraints.empty? ? Router::EMPTY_HASH : constraints
         @blk = blk
         freeze
       end

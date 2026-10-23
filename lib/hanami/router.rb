@@ -1008,7 +1008,11 @@ module Hanami
     # @since 2.0.0
     # @api private
     def prefixed_path(path)
-      @path_prefix.join(path).to_s
+      # Intern the path so every use of it shares a single string. This includes the routing tables,
+      # such as the hash keys in {#add_fixed_route}, and each route we record for {#routes}. This
+      # means a route defined for several HTTP methods (including the HEAD added for every GET) then
+      # keeps just one copy of its path.
+      -@path_prefix.join(path).to_s
     end
 
     # @api private
