@@ -31,19 +31,12 @@ module Hanami
         end
 
         @trie.freeze
-        @inspector = router.inspector.freeze
       end
 
       # @since 2.0.0
       # @api private
       def call(env)
         @trie.find(env[::Rack::PATH_INFO]).call(env)
-      end
-
-      # @since 2.0.0
-      # @api private
-      def to_inspect
-        @inspector&.call.to_s
       end
     end
   end

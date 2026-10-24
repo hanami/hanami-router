@@ -51,21 +51,4 @@ RSpec.describe Hanami::Middleware::App do
       expect(headers["X-Auth-User-ID"]).to eq "23 arg kwarg"
     end
   end
-
-  describe "#to_inspect" do
-    context "when app isn't configured for inspection" do
-      it "returns empty string" do
-        expect(subject.to_inspect).to eq("")
-      end
-    end
-
-    context "when app is configured for inspection" do
-      let(:app) { Hanami::Router.new(inspector: inspector) }
-      let(:inspector) { -> { "routes!" } }
-
-      it "returns empty string" do
-        expect(subject.to_inspect).to eq("routes!")
-      end
-    end
-  end
 end

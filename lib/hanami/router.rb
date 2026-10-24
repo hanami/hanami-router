@@ -23,6 +23,7 @@ module Hanami
     require "hanami/router/globbed_path"
     require "hanami/router/mounted_path"
     require "hanami/router/rack_utils"
+    require "hanami/router/formatter"
 
     # URL helpers for other Hanami integrations
     #
@@ -30,12 +31,31 @@ module Hanami
     # @since 2.0.0
     attr_reader :url_helpers
 
-    # Routes inspector
+    # Returns the routes defined on this router, in the order they were defined.
     #
-    # @return [Hanami::Router::Inspector]
+    # Each GET route is followed by the HEAD route the router generates for it. Routes defined
+    # within a {#scope}, or under a router prefix, have their full prefixed path.
     #
-    # @since 2.0.0
-    attr_reader :inspector
+    # The returned array is frozen. Once the router is frozen, every call returns the same array.
+    #
+    # To render the routes, pass them to a formatter, such as {Formatter::HumanFriendly} or
+    # {Formatter::CSV}.
+    #
+    # @return [Array<Hanami::Router::Route>]
+    #
+    # @example
+    #   router = Hanami::Router.new do
+    #     get "/books/:id", to: "books.show", as: :book
+    #   end
+    #
+    #   router.routes.map { |route| "#{route.http_method} #{route.path}" }
+    #   # => ["GET /books/:id", "HEAD /books/:id"]
+    #
+    # @since 3.1.0
+    # @api public
+    def routes
+      @routes.frozen? ? @routes : @routes.dup.freeze
+    end
 
     # Returns the given block as it is.
     #
@@ -75,7 +95,7 @@ module Hanami
     #   Hanami::Router.new do
     #     get "/", to: ->(*) { [200, {}, ["OK"]] }
     #   end
-    def initialize(base_url: DEFAULT_BASE_URL, prefix: DEFAULT_PREFIX, resolver: DEFAULT_RESOLVER, not_allowed: NOT_ALLOWED, not_found: NOT_FOUND, block_context: nil, inspector: nil, &blk) # rubocop:disable Layout/LineLength
+    def initialize(base_url: DEFAULT_BASE_URL, prefix: DEFAULT_PREFIX, resolver: DEFAULT_RESOLVER, not_allowed: NOT_ALLOWED, not_found: NOT_FOUND, block_context: nil, &blk) # rubocop:disable Layout/LineLength
       # TODO: verify if Prefix can handle both name and path prefix
       @path_prefix = Prefix.new(prefix)
       @name_prefix = Prefix.new("")
@@ -88,9 +108,20 @@ module Hanami
       @fixed = {}
       @variable = {}
       @globs_and_mounts = []
+      @routes = []
       @blk = blk
-      @inspector = inspector
       instance_eval(&blk) if blk
+    end
+
+    # Freezes the router, along with its {#routes}.
+    #
+    # @return [self]
+    #
+    # @since 2.0.0
+    # @api public
+    def freeze
+      @routes.freeze
+      super
     end
 
     # Resolve the given Rack env to a registered endpoint and invokes it.
@@ -515,13 +546,13 @@ module Hanami
     #     mount MyRackApp.new, at: "/foo"
     #   end
     def mount(app, at:, **constraints)
+      raise_if_frozen
+
       path = prefixed_path(at)
       prefix = Segment.fabricate(path, **constraints)
 
       @globs_and_mounts << MountedPath.new(prefix, @resolver.call(path, app))
-      if inspect?
-        @inspector.add_route(Route.new(http_method: "*", path: at, to: app, constraints: constraints))
-      end
+      @routes << Route.new(http_method: "*", path:, to: app, constraints:)
     end
 
     # Generate an relative URL for a specified named route.
@@ -910,6 +941,8 @@ module Hanami
     # @since 2.0.0
     # @api private
     def add_route(http_method, path, to, as, constraints, &blk)
+      raise_if_frozen
+
       path = prefixed_path(path)
       endpoint = resolve_endpoint(path, to, blk)
 
@@ -926,11 +959,7 @@ module Hanami
         add_named_route(path, as)
       end
 
-      if inspect?
-        @inspector.add_route(
-          Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
-        )
-      end
+      @routes << Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
     end
 
     # @since 2.0.0
@@ -980,16 +1009,27 @@ module Hanami
       ROUTE_GLOBBED_MATCHER.match?(path)
     end
 
-    # @since 2.0.0
+    # Raises before a route is added to a frozen router.
+    #
+    # Freezing the router does not freeze its routing tables, so without this check a route would
+    # be added to them, and so start serving requests, before {#routes} raised on being changed.
+    #
+    # @raise [FrozenError] if the router is frozen
+    #
+    # @since 3.1.0
     # @api private
-    def inspect?
-      !@inspector.nil?
+    def raise_if_frozen
+      raise FrozenError.new("can't modify frozen #{self.class}", receiver: self) if frozen?
     end
 
     # @since 2.0.0
     # @api private
     def prefixed_path(path)
-      @path_prefix.join(path).to_s
+      # Intern the path so every use of it shares a single string. This includes the routing tables,
+      # such as the hash keys in {#add_fixed_route}, and each route we record for {#routes}. This
+      # means a route defined for several HTTP methods (including the HEAD added for every GET) then
+      # keeps just one copy of its path.
+      -@path_prefix.join(path).to_s
     end
 
     # @api private

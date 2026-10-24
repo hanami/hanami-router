@@ -10,18 +10,24 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 ### Added
 
 - Support for HTTP QUERY method (@katafrakt in #307)
+- Add `Hanami::Router#routes`, returning a frozen array of the router's routes, in the order they were defined. The router now records its routes at all times, so they are available at runtime (for example, to list them on a "not found" error page). (@afomera and @timriley in #306)
+- Make `Hanami::Router::Formatter::HumanFriendly` and `Hanami::Router::Formatter::CSV` public API. A formatter is any object that responds to `#call(routes, **options)` and returns a String. Use one to render routes: `Hanami::Router::Formatter::HumanFriendly.new.call(router.routes)`. (@timriley in #306)
 
 ### Changed
 
 - Generate most paths without Mustermann, making `#path` and `#url` around 10 times faster, and routers with many named routes quicker to build. (@parndt in #311)
+- Raise `FrozenError` when adding a route to, or mounting an app on, a frozen router. Previously, the route was added to the routing tables and served requests, even though the router was frozen. (@timriley in #306)
 
 ### Deprecated
 
 ### Removed
 
+- **BREAKING:** Remove `Hanami::Router::Inspector`, the `inspector:` argument to `Hanami::Router.new`, and `Hanami::Router#inspector`. Use `#routes` with a formatter instead: `Hanami::Router::Formatter::HumanFriendly.new.call(router.routes)`. If you use hanami and hanami-cli, upgrade those to v3.1, which use the formatters directly. (@timriley in #306)
+
 ### Fixed
 
 - Trie#find keeps every path it looks up (@aaronmallen in #312)
+- Record the full prefixed path for apps mounted within a scope or under a router prefix. Previously, `mount app, at: "/api"` within `scope "v1"` was listed with the path `/api` instead of `/v1/api`. (@timriley in #306)
 
 ### Security
 
