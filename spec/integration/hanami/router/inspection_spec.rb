@@ -13,8 +13,8 @@ RSpec.describe "Router: inspection" do
 
   it "inspects the routes" do
     expected = [
-      "GET     /                             (proc)                        as :root",
-      "GET     /api                          (proc)                        as :api_root"
+      "GET     /                                  (proc)                             as :root            ",
+      "GET     /api                               (proc)                             as :api_root        "
     ]
 
     actual = Hanami::Router::Formatter::HumanFriendly.new.call(router.routes)
