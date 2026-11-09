@@ -55,7 +55,7 @@ Hanami::Router.new do
   get "/dashboard",   to: Dashboard::Index
   get "/rack-app",    to: RackApp.new
 
-  permanent_redirect "/legacy", to: "/"
+  redirect_permanent "/legacy", to: "/"
 
   mount Api::App, at: "/api"
 
@@ -101,7 +101,7 @@ end
 
 ```ruby
 Hanami::Router.new do
-  get "/hanami(.:format)" to: ->(env) { [200, {}, ["You"ve requested #{ env["router.params"][:format] }!"]] }
+  get "/hanami(.:format)", to: ->(env) { [200, {}, ["You have requested #{ env["router.params"][:format] }!"]] }
 end
 ```
 
@@ -134,10 +134,10 @@ end
 ```ruby
 Hanami::Router.new do
   get "/redirect_destination", to: ->(env) { [200, {}, ["Redirect destination!"]] }
-  permanent_redirect "/legacy",     to: "/redirect_destination"
-  temporary_redirect "/today",      to: "/redirect_destination"
-  permanent_redirect "/learn-more", to: "https://hanamirb.org/"
-  permanent_redirect "/chat",       to: URI("xmpp://myapp.net/")
+  redirect_permanent "/legacy",     to: "/redirect_destination"
+  redirect_temporary "/today",      to: "/redirect_destination"
+  redirect_permanent "/learn-more", to: "https://hanamirb.org/"
+  redirect_permanent "/chat",       to: URI("xmpp://myapp.net/")
 
   # For less common codes (303, 307, 308), use redirect with an explicit code:
   redirect "/submit", to: "/result", code: 303
@@ -147,12 +147,12 @@ end
 ### Named routes:
 
 ```ruby
-router = Hanami::Router.new(scheme: "https", host: "hanamirb.org") do
+router = Hanami::Router.new(base_url: "https://hanamirb.org") do
   get "/hanami", to: ->(env) { [200, {}, ["Hello from Hanami!"]] }, as: :hanami
 end
 
 router.path(:hanami) # => "/hanami"
-router.url(:hanami)  # => "https://hanamirb.org/hanami"
+router.url(:hanami)  # => #<URI::HTTPS https://hanamirb.org/hanami>
 ```
 
 
@@ -246,7 +246,7 @@ curl http://localhost:2300/books/1    \
   -d '{"published":"true"}'           \
   -X PATCH
 
-# => [200, {}, ["{:published=>\"true\",:id=>\"1\"}"]]
+# => [200, {}, ["{published: \"true\", id: \"1\"}"]]
 ```
 
 If the json can't be parsed an exception is raised:
@@ -269,7 +269,7 @@ require "hanami/middleware/body_parser"
 
 # See Hanami::Middleware::BodyParser::Parser
 class XmlParser < Hanami::Middleware::BodyParser::Parser
-  def mime_types
+  def self.media_types
     ["application/xml", "text/xml"]
   end
 
@@ -296,7 +296,7 @@ curl http://localhost:2300/authors/1 \
   -d '<name>LG</name>'               \
   -X PATCH
 
-# => [200, {}, ["{:name=>\"LG\",:id=>\"1\"}"]]
+# => [200, {}, ["{name: \"LG\", id: \"1\"}"]]
 ```
 
 ## Testing
@@ -313,13 +313,13 @@ end
 route = router.recognize("/books/23")
 route.verb      # "GET"
 route.endpoint  # => "books.show"
-route.params    # => {:id=>"23"}
+route.params    # => {id: "23"}
 route.routable? # => true
 
 route = router.recognize(:book, id: 23)
 route.verb      # "GET"
 route.endpoint  # => "books.show"
-route.params    # => {:id=>"23"}
+route.params    # => {id: "23"}
 route.routable? # => true
 
 route = router.recognize("/books/23", {}, method: :post)

@@ -425,8 +425,8 @@ module Hanami
 
     # Defines a route that redirects the incoming request to another path.
     #
-    # `code:` is required. For the common cases, prefer {#permanent_redirect} (301)
-    # or {#temporary_redirect} (302). Use this method when you need a less common
+    # `code:` is required. For the common cases, prefer {#redirect_permanent} (301)
+    # or {#redirect_temporary} (302). Use this method when you need a less common
     # redirect code such as 303 See Other, 307 Temporary Redirect, or 308 Permanent Redirect.
     #
     # @param path [String] the relative URL to be matched
