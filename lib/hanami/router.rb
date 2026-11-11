@@ -1079,13 +1079,21 @@ module Hanami
 
     # @api private
     def _env_with_params(env, params)
-      params ||= {}
-      env[PARAMS] ||= {}
+      router_params = env[PARAMS] ||= {}
 
-      env[PARAMS].merge!(_form_urlencoded_body(env))
-      env[PARAMS].merge!(::Rack::Utils.parse_nested_query(env[::Rack::QUERY_STRING]))
-      env[PARAMS].merge!(params)
-      env[PARAMS] = Params.deep_symbolize(env[PARAMS])
+      # Most requests have no form body or query string, and many have no path variables, so each
+      # source is only parsed and merged when it is present.
+      body_params = _form_urlencoded_body(env)
+      router_params.merge!(body_params) unless body_params.empty?
+
+      query_string = env[::Rack::QUERY_STRING]
+      if query_string && !query_string.empty?
+        router_params.merge!(::Rack::Utils.parse_nested_query(query_string))
+      end
+
+      router_params.merge!(params) if params && !params.empty?
+
+      env[PARAMS] = Params.deep_symbolize(router_params) unless router_params.empty?
 
       env
     end

@@ -44,6 +44,55 @@ RSpec.describe "Params" do
 
       expect(env["router.params"]).to eq(q: "hanami")
     end
+
+    it "has empty params for an empty query string" do
+      env = Rack::MockRequest.env_for("/search?")
+      subject.call(env)
+
+      expect(env["router.params"]).to eq({})
+    end
+
+    it "has empty params when the query string is missing from the env" do
+      env = Rack::MockRequest.env_for("/search")
+      env.delete("QUERY_STRING")
+      subject.call(env)
+
+      expect(env["router.params"]).to eq({})
+    end
+  end
+
+  context "path variables" do
+    it "has params from path variables alone" do
+      env = Rack::MockRequest.env_for("/user/23/update", method: "PATCH")
+      subject.call(env)
+
+      expect(env["router.params"]).to eq(id: "23")
+    end
+
+    it "gives path variables precedence over the query string and form payload" do
+      env = Rack::MockRequest.env_for("/user/23/update?id=1&q=hanami", method: "PATCH", params: {"id" => "2", "name" => "x"})
+      subject.call(env)
+
+      expect(env["router.params"]).to eq(id: "23", q: "hanami", name: "x")
+    end
+  end
+
+  context "params already in the env" do
+    it "keeps and symbolizes them when there is nothing else to merge" do
+      env = Rack::MockRequest.env_for("/search")
+      env["router.params"] = {"from" => {"middleware" => "yes"}}
+      subject.call(env)
+
+      expect(env["router.params"]).to eq(from: {middleware: "yes"})
+    end
+
+    it "merges the query string into them" do
+      env = Rack::MockRequest.env_for("/search?q=hanami")
+      env["router.params"] = {"from" => "middleware"}
+      subject.call(env)
+
+      expect(env["router.params"]).to eq(from: "middleware", q: "hanami")
+    end
   end
 
   context "form payload" do
