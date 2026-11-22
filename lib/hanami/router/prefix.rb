@@ -23,9 +23,13 @@ module Hanami
 
       # @since 2.0.0
       # @api private
+      #
+      # Returns only the prefix, with no trailing separator, when the path is empty.
       def relative_join(path, separator = DEFAULT_SEPARATOR)
-        _join(path.to_s)
-          .gsub(DEFAULT_SEPARATOR_REGEXP, separator)[1..]
+        path = path.to_s
+        joined = path.empty? ? @prefix : _join(path)
+
+        joined.gsub(DEFAULT_SEPARATOR_REGEXP, separator)[1..].to_s
       end
 
       # @since 2.0.0

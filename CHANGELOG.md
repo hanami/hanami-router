@@ -27,6 +27,7 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 ### Fixed
 
 - Trie#find keeps every path it looks up (@aaronmallen in #312)
+- Allow route names to give only a prefix, with an `as:` of `[prefix, nil]`. Previously, this gave a name with a trailing underscore. For example, `scope "admin" do get "/", to: dashboard, as: [:dashboard, nil] end` now gives `dashboard_admin`, rather than `dashboard_admin_`. (@timriley in #314)
 - Record the full prefixed path for apps mounted within a scope or under a router prefix. Previously, `mount app, at: "/api"` within `scope "v1"` was listed with the path `/api` instead of `/v1/api`. (@timriley in #306)
 
 ### Security

@@ -1035,11 +1035,9 @@ module Hanami
     # @api private
     def prefixed_name(name)
       prefix, suffix = name_parts(name)
+      parts = [prefix, @name_prefix.relative_join(suffix, PREFIXED_NAME_SEPARATOR)]
 
-      name = @name_prefix.relative_join(suffix, PREFIXED_NAME_SEPARATOR).to_s
-      name = prefix + PREFIXED_NAME_SEPARATOR + name if prefix
-
-      normalized_name(name)
+      normalized_name(parts.compact.reject(&:empty?).join(PREFIXED_NAME_SEPARATOR))
     end
 
     # Returns a [prefix, suffix] array for a given route name.
