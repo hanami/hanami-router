@@ -386,5 +386,31 @@ RSpec.describe Hanami::Router do
         expect { route.call(env) }.to raise_error(Hanami::Router::NotRoutableEndpointError, "Cannot find routable endpoint for: POST /")
       end
     end
+
+    # See: https://github.com/hanami/hanami-router/issues/271
+    context "with Rack env options and no route params" do
+      let(:router) do
+        Hanami::Router.new do
+          get  "/images",     to: ->(*) { [200, {}, ["INDEX"]] }
+          post "/images",     to: ->(*) { [200, {}, ["UPLOAD"]] }
+          put  "/images/:id", to: ->(*) { [200, {}, ["REPLACE"]] }, as: :replace
+        end
+      end
+
+      it "applies the options for a path" do
+        route = router.recognize("/images", method: :post)
+
+        expect(route.routable?).to be(true)
+        expect(route.verb).to eq("POST")
+      end
+
+      it "still treats the hash as route variables for named routes" do
+        route = router.recognize(:replace, {id: 1}, method: :put)
+
+        expect(route.routable?).to be(true)
+        expect(route.verb).to eq("PUT")
+        expect(route.params).to eq(id: "1")
+      end
+    end
   end
 end

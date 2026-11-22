@@ -622,8 +622,10 @@ module Hanami
     # inspection.
     #
     # @param env [Hash, String, Symbol] Rack env, path or route name
-    # @param options [Hash] a set of options for Rack env or route params
-    # @param params [Hash] a set of params
+    # @param params [Hash] variables for a named route. When `env` is a path,
+    #   route variables don't apply, so this is used as the Rack env options
+    #   instead, unless `options` is also given.
+    # @param options [Hash] a set of options for the Rack env
     #
     # @return [Hanami::Routing::RecognizedRoute] the recognized route
     #
@@ -719,12 +721,16 @@ module Hanami
     #     get "/books/:id", to: ->(*) { ... }, as: :book
     #   end
     #
-    #   route = router.recognize(:book, {method: :post}, {id: 1})
+    #   route = router.recognize(:book, {id: 1}, method: :post)
     #   route.verb      # => "POST"
     #   route.routable? # => false
     #   route.params    # => {:id=>"1"}
     def recognize(env, params = {}, options = {})
       require "hanami/router/recognized_route"
+
+      # Route variables only apply to named routes, so for a path, treat a lone
+      # hash as Rack env options: `recognize("/books", method: :post)`
+      options, params = params, {} if env.is_a?(::String) && options.empty?
 
       env = env_for(env, params, options)
       endpoint, params = lookup(env)
