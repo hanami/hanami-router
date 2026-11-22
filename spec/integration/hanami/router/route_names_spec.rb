@@ -47,4 +47,21 @@ RSpec.describe Hanami::Router, "route names" do
     expect(router.path("new_backend_secret_very_good_boy")).to eq "/backend/admin/dogs/new"
     expect(router.path("backend_secret_cows")).to eq "/backend/admin/cows"
   end
+
+  it "allows route names to provide only a prefix" do
+    router = described_class.new do
+      get "/", to: -> {}, as: [:home, nil]
+
+      scope "backend" do
+        scope "admin", as: :secret do
+          get "/", to: -> {}, as: [:dashboard, nil]
+          get "/settings", to: -> {}, as: [:settings, ""]
+        end
+      end
+    end
+
+    expect(router.path("home")).to eq "/"
+    expect(router.path("dashboard_backend_secret")).to eq "/backend/admin"
+    expect(router.path("settings_backend_secret")).to eq "/backend/admin/settings"
+  end
 end
