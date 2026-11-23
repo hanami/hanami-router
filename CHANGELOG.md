@@ -38,11 +38,11 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Added
 
-- Add `#permanent_redirect` and `#temporary_redirect` helpers for 301 and 302 responses. (@cllns in #302)
+- Add `#redirect_permanent` and `#redirect_temporary` helpers for 301 and 302 responses. (@cllns in #302)
 
 ### Changed
 
-- **BREAKING:** `#redirect` now requires an explicit `code:` argument. Use `#permanent_redirect` or `#temporary_redirect` for the common cases, and pass `code:` to `#redirect` for less common codes (e.g. `303`, `307`, `308`). (@cllns in #302)
+- **BREAKING:** `#redirect` now requires an explicit `code:` argument. Use `#redirect_permanent` or `#redirect_temporary` for the common cases, and pass `code:` to `#redirect` for less common codes (e.g. `303`, `307`, `308`). (@cllns in #302)
 - Upgrade mustermann to 3.1 and remove mustermann-contrib dependency. (@rkh in #300)
 - Require Ruby 3.3 or newer.
 
@@ -57,11 +57,11 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Added
 
-- Add `#permanent_redirect` and `#temporary_redirect` helpers for 301 and 302 responses. (@cllns in #302)
+- Add `#redirect_permanent` and `#redirect_temporary` helpers for 301 and 302 responses. (@cllns in #302)
 
 ### Changed
 
-- **BREAKING:** `#redirect` now requires an explicit `code:` argument. Use `#permanent_redirect` or `#temporary_redirect` for the common cases, and pass `code:` to `#redirect` for less common codes (e.g. `303`, `307`, `308`). (@cllns in #302)
+- **BREAKING:** `#redirect` now requires an explicit `code:` argument. Use `#redirect_permanent` or `#redirect_temporary` for the common cases, and pass `code:` to `#redirect` for less common codes (e.g. `303`, `307`, `308`). (@cllns in #302)
 - Upgrade mustermann to 3.1 and remove mustermann-contrib dependency. (@rkh in #300)
 - Require Ruby 3.3 or newer.
 
