@@ -101,6 +101,20 @@ Hanami::Router.new do
 end
 ```
 
+Constraints given to `scope` apply to every route in its block. Routes can add their own, and a route's own constraint for the same variable takes precedence:
+
+```ruby
+Hanami::Router.new do
+  scope "/:locale", as: :locale, locale: /en|it/ do
+    get "/flowers",     to: "flowers.index", as: :flowers
+    get "/flowers/:id", to: "flowers.show",  as: :flower, id: /\d+/
+  end
+end
+
+# GET /en/flowers/1  => flowers.show
+# GET /fr/flowers/1  => 404 Not Found
+```
+
 ### String matching with globbing:
 
 ```ruby
