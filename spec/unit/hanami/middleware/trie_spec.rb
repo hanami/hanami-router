@@ -45,6 +45,12 @@ RSpec.describe Hanami::Middleware::Trie do
     it "falls back to app, if no node is associated with given path" do
       expect(subject.find("/foo")).to eq(app)
     end
+
+    it "matches the nearest enclosing scope when a nested scope exists" do
+      expect(subject.find("/api/songs")).to eq(api)
+      expect(subject.find("/api/songs/1")).to eq(api)
+      expect(subject.find("/api/v2/songs")).to eq(api)
+    end
   end
 
   describe "#empty?" do
