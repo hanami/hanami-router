@@ -38,16 +38,19 @@ module Hanami
       # @since 2.0.0
       def find(path)
         node = @root
+        app = @root.app
 
+        # Track the deepest scope with an app on the way down. When the descent stops early (a
+        # segment with no matching child under a node that has children), the request is still
+        # within that scope, so its middleware must apply.
         for_each_segment(path) do |segment|
+          node = node.get(segment)
           break unless node
 
-          node = node.get(segment)
+          app = node.app if node.app?
         end
 
-        return node.app if node&.app?
-
-        @root.app || @app
+        app || @app
       end
 
       # @api private
