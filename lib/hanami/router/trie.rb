@@ -41,7 +41,7 @@ module Hanami
 
         return unless segments.all? { |segment| node = node.get(segment) }
 
-        node.match(path)&.then { |found| [found.to, found.params] }
+        node.match(path)
       end
 
       private

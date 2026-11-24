@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Security
 
 - Apply a scope's middleware to all of its paths when it contains a nested scope or slice with its own middleware. Previously, paths in the outer scope that weren't in the nested scope skipped the outer scope's middleware, such as authentication. (@parndt in GHSA-73j7-6jvw-2v7g)
+- - Stop concurrent requests to the same route from receiving each other's path params. Matching a route stored the captured params on the route itself, so a thread switch between matching and reading them could give one request another's params. (@parndt in GHSA-wgjv-fq27-94m7)
 
 [3.0.1]: http://github.com/hanami/hanami-router/compare/v3.0.0...v3.0.1
 

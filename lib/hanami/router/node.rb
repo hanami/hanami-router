@@ -45,10 +45,17 @@ module Hanami
         @leaves << Leaf.new(route, to, constraints)
       end
 
+      # Returns the endpoint and captured params of the first leaf matching the given path, or nil.
+      #
       # @api private
       # @since 2.2.0
       def match(path)
-        @leaves&.find { |leaf| leaf.match(path) }
+        @leaves&.each do |leaf|
+          params = leaf.match(path)
+          return [leaf.to, params] if params
+        end
+
+        nil
       end
 
       private

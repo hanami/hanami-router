@@ -9,24 +9,24 @@ module Hanami
       #
       # @api private
       # @since 2.2.0
-      attr_reader :to, :params, :matcher
+      attr_reader :to, :matcher
 
       # @api private
       # @since 2.2.0
       def initialize(route, to, constraints)
         @to = to
-        @params = nil
         @matcher = Mustermann.new(route, type: :rails, version: "5.0", capture: constraints)
       end
 
+      # Returns the captured params for the given path, or nil if the path doesn't match.
+      #
+      # Leaves are shared across concurrent requests, so the captures are returned rather than
+      # stored on the leaf.
+      #
       # @api private
       # @since 2.2.0
       def match(path)
-        match = matcher.match(path)
-
-        @params = match.named_captures if match
-
-        match
+        matcher.match(path)&.named_captures
       end
     end
   end
