@@ -24,39 +24,33 @@ RSpec.describe Hanami::Router::Leaf do
     context "when path matches route" do
       let(:matching_path) { route }
 
-      it "returns true" do
-        expect(subject.match(matching_path)).to be_truthy
+      it "returns the (empty) captured params" do
+        expect(subject.match(matching_path)).to eq({})
       end
     end
 
     context "when path doesn't match route" do
       let(:non_matching_path) { "/bad/path" }
 
-      it "returns true" do
-        expect(subject.match(non_matching_path)).to be_falsey
-      end
-    end
-  end
-
-  describe "#params" do
-    context "without previously calling #match(path)" do
       it "returns nil" do
-        params = subject.params
-
-        expect(params).to be_nil
+        expect(subject.match(non_matching_path)).to be_nil
       end
     end
 
     context "with variable path" do
-      let(:route)           { "test/:route" }
-      let(:matching_path)   { "test/path" }
-      let(:matching_params) { {"route" => "path"} }
+      let(:route) { "test/:route" }
 
       it "returns captured params" do
-        subject.match(matching_path)
-        params = subject.params
+        expect(subject.match("test/path")).to eq("route" => "path")
+      end
 
-        expect(params).to eq(matching_params)
+      # Leaves are shared by concurrent requests, so matching must not write per-request state to
+      # the leaf. A frozen leaf proves this: any write would raise FrozenError.
+      it "does not store per-request state on the leaf" do
+        subject.freeze
+
+        expect(subject.match("test/one")).to eq("route" => "one")
+        expect(subject.match("test/two")).to eq("route" => "two")
       end
     end
   end

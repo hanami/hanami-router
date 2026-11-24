@@ -57,14 +57,14 @@ RSpec.describe Hanami::Router::Node do
       end
 
       context "and match is found" do
-        it "returns a Leaf object" do
+        it "returns the endpoint and captured params" do
           segment = "foo"
           route = "/foo"
           to = double("to")
           constraints = {}
           subject.put(segment).leaf!(route, to, constraints)
 
-          expect(subject.get(segment).match(route)).to be_kind_of(Hanami::Router::Leaf)
+          expect(subject.get(segment).match(route)).to eq([to, {}])
         end
       end
     end
@@ -84,7 +84,7 @@ RSpec.describe Hanami::Router::Node do
       end
 
       context "and match found" do
-        it "returns Leaf object" do
+        it "returns the endpoint and captured params" do
           segment = ":foo"
           route = "/:foo"
           to = double("to")
@@ -92,7 +92,7 @@ RSpec.describe Hanami::Router::Node do
           path = "/123"
           subject.put(segment).leaf!(route, to, constraints)
 
-          expect(subject.get(segment).match(path)).to be_kind_of(Hanami::Router::Leaf)
+          expect(subject.get(segment).match(path)).to eq([to, {"foo" => "123"}])
         end
       end
     end
