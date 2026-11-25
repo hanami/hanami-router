@@ -99,6 +99,7 @@ module Hanami
       # TODO: verify if Prefix can handle both name and path prefix
       @path_prefix = Prefix.new(prefix)
       @name_prefix = Prefix.new("")
+      @scope_constraints = EMPTY_HASH
       @url_helpers = UrlHelpers.new(base_url)
       @base_url = base_url
       @resolver = resolver
@@ -492,8 +493,14 @@ module Hanami
     # Defines a routing scope. Routes defined in the context of a scope,
     # inherit the given path as path prefix and as a named routes prefix.
     #
+    # Constraints given to the scope apply to every route in its block, including globbed
+    # routes and mounts. Nested scopes merge their constraints. For the same segment, an
+    # inner scope's or a route's own constraint wins. Constraints for segments a route
+    # doesn't have are ignored.
+    #
     # @param path [String] the scope path to be used as a path prefix
     # @param as: [String, Symbol] the name prefix to use for nested routes
+    # @param constraints [Hash] constraints for path variables, applied to every route in the block
     # @param blk [Proc] the routes definitions withing the scope
     #
     # @since 2.0.0
@@ -510,17 +517,34 @@ module Hanami
     #   end
     #
     #   router.path(:v1_users) # => "/v1/users"
-    def scope(path, as: nil, &blk)
+    #
+    # @example Constraints
+    #   require "hanami/router"
+    #
+    #   router = Hanami::Router.new do
+    #     scope "/:locale", as: :locale, locale: /en|it/ do
+    #       get "/flowers", to: ->(*) { ... }, as: :flowers
+    #       get "/flowers/:id", to: ->(*) { ... }, as: :flower, id: /\d+/
+    #     end
+    #   end
+    #
+    #   # GET /en/flowers   # => matches
+    #   # GET /fr/flowers   # => not found
+    #   router.path(:locale_flowers, locale: "en") # => "/en/flowers"
+    def scope(path, as: nil, **constraints, &blk)
       path_prefix = @path_prefix
       name_prefix = @name_prefix
+      scope_constraints = @scope_constraints
 
       begin
         @path_prefix = @path_prefix.join(path.to_s)
         @name_prefix = @name_prefix.join((as || path).to_s)
+        @scope_constraints = @scope_constraints.merge(constraints) unless constraints.empty?
         instance_eval(&blk)
       ensure
         @path_prefix = path_prefix
         @name_prefix = name_prefix
+        @scope_constraints = scope_constraints
       end
     end
 
@@ -549,6 +573,7 @@ module Hanami
       raise_if_frozen
 
       path = prefixed_path(at)
+      constraints = scoped_constraints(constraints)
       prefix = Segment.fabricate(path, **constraints)
 
       @globs_and_mounts << MountedPath.new(prefix, @resolver.call(path, app))
@@ -944,6 +969,7 @@ module Hanami
       raise_if_frozen
 
       path = prefixed_path(path)
+      constraints = scoped_constraints(constraints)
       endpoint = resolve_endpoint(path, to, blk)
 
       if globbed?(path)
@@ -960,6 +986,17 @@ module Hanami
       end
 
       @routes << Route.new(http_method:, path:, to: to || endpoint, as:, constraints:, blk:)
+    end
+
+    # Merges the current scope's constraints under the given ones, so that the given ones win.
+    #
+    # @since 3.1.0
+    # @api private
+    def scoped_constraints(constraints)
+      return constraints if @scope_constraints.empty?
+      return @scope_constraints if constraints.empty?
+
+      @scope_constraints.merge(constraints)
     end
 
     # @since 2.0.0

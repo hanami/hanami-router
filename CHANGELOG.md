@@ -12,6 +12,7 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 - Support for HTTP QUERY method (@katafrakt in #307)
 - Add `Hanami::Router#routes`, returning a frozen array of the router's routes, in the order they were defined. The router now records its routes at all times, so they are available at runtime (for example, to list them on a "not found" error page). (@afomera and @timriley in #306)
 - Make `Hanami::Router::Formatter::HumanFriendly` and `Hanami::Router::Formatter::CSV` public API. A formatter is any object that responds to `#call(routes, **options)` and returns a String. Use one to render routes: `Hanami::Router::Formatter::HumanFriendly.new.call(router.routes)`. (@timriley in #306)
+- `scope` accepts segment constraints, applied to every route in its block: `scope "/:locale", locale: /en|it/ do ... end`. A route's own constraint for the same segment takes precedence, and nested scopes merge their constraints.
 
 ### Changed
 
